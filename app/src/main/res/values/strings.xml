@@ -1,3 +1,10 @@
 <resources>
+
     <string name="app_name">Assina Familia</string>
+
+    <!-- Parte da activity_main -->
+    <string name="controle_conjunto_inteligente">Controle conjunto inteligente</string>
+    <string name="e_mail_exemplo">E-mail (ex: admin@admin.com)</string>
+    <string name="senha_exemplo">Senha (ex: 1234)</string>
+    <string name="btnentrar">Entrar</string>
 </resources>
