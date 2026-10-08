@@ -7,4 +7,18 @@
     <string name="e_mail_exemplo">E-mail (ex: admin@admin.com)</string>
     <string name="senha_exemplo">Senha (ex: 1234)</string>
     <string name="btnentrar">Entrar</string>
+
+    <!-- Parte da activity_dashboard -->
+    <string name="titulo_dashboard">Nova Assinatura</string>
+    <string name="hint_nome_servico">Nome do Serviço (ex: Netflix)</string>
+    <string name="hint_valor_total">Valor (ex: 55.90)</string>
+    <string name="hint_tipo_uso">Tipo de Uso (Geral ou Individual)</string>
+    <string name="btnsalvar">Salvar Assinatura</string>
+
+    <!-- Parte da activity_nova_assinatura -->
+    <string name="ola_gestor">Olá, Gestor</string>
+    <string name="gasto_total_da_familia">Gasto Total da Família</string>
+    <string name="valor_exemplo">R$ 450,00</string>
+    <string name="nova_assinatura">Adicionar Nova Assinatura</string>
+    <string name="sair_da_conta">Sair da Conta</string>
 </resources>
