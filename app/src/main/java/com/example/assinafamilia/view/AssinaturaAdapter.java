@@ -13,9 +13,14 @@ import java.util.List;
 public class AssinaturaAdapter extends RecyclerView.Adapter<AssinaturaAdapter.ViewHolder> {
 
     private List<Assinatura> assinaturas;
+    private OnItemLongClickListener listener;
+    public interface OnItemLongClickListener {
+        void onItemLongClick(Assinatura assinatura);
+    }
 
-    public AssinaturaAdapter(List<Assinatura> assinaturas) {
+    public AssinaturaAdapter(List<Assinatura> assinaturas, OnItemLongClickListener listener) {
         this.assinaturas = assinaturas;
+        this.listener = listener;
     }
 
     public void setAssinaturas(List<Assinatura> novasAssinaturas) {
@@ -36,6 +41,13 @@ public class AssinaturaAdapter extends RecyclerView.Adapter<AssinaturaAdapter.Vi
         holder.txtNome.setText(assinatura.getNomeServico());
         holder.txtTipo.setText(assinatura.getTipoDoUso());
         holder.txtValor.setText(String.format("R$ %.2f", assinatura.getValorTotal()));
+
+        holder.itemView.setOnLongClickListener(v -> {
+            if (listener != null) {
+                listener.onItemLongClick(assinatura);
+            }
+            return true;
+        });
     }
 
     @Override

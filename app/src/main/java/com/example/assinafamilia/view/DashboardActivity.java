@@ -1,7 +1,9 @@
 package com.example.assinafamilia.view;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.assinafamilia.data.AppDatabase;
@@ -28,9 +30,26 @@ public class DashboardActivity extends AppCompatActivity {
         dao = database.assinaturaDao();
 
         binding.recyclerViewAssinaturas.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new AssinaturaAdapter(new ArrayList<>());
+
+        adapter = new AssinaturaAdapter(new ArrayList<>(), assinatura -> {
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Apagar Assinatura")
+                    .setMessage("Deseja realmente apagar '" + assinatura.getNomeServico() + "'?")
+                    .setPositiveButton("Sim", (dialog, which) -> {
+
+                        dao.delete(assinatura);
+                        Toast.makeText(this, "Assinatura apagada!", Toast.LENGTH_SHORT).show();
+
+                        carregarDadosDoBanco();
+                    })
+                    .setNegativeButton("Não", null)
+                    .show();
+        });
+
         binding.recyclerViewAssinaturas.setAdapter(adapter);
 
+        // Botões
         binding.btnIrParaNovaAssinatura.setOnClickListener(v -> {
             startActivity(new Intent(DashboardActivity.this, NovaAssinaturaActivity.class));
         });

@@ -1,6 +1,7 @@
 package com.example.assinafamilia.data;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
@@ -15,4 +16,7 @@ public interface AssinaturaDao {
 
     @Query("SELECT * FROM tabela_assinaturas")
     List<Assinatura> getAllAssinaturas();
+
+    @Delete
+    void delete(Assinatura assinatura);
 }
