@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:padding="24dp">
 
+    <!-- Boas-Vindas -->
     <TextView
         android:id="@+id/textBoasVindas"
         android:layout_width="wrap_content"
@@ -20,7 +21,7 @@
         android:id="@+id/cardSaldo"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:background="#006633"
         android:orientation="vertical"
         android:padding="24dp"
@@ -36,6 +37,7 @@
             android:textSize="14sp" />
 
         <TextView
+            android:id="@+id/txtGastoTotal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/valor_exemplo"
@@ -44,30 +46,49 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/textMinhasAssinaturas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/minhas_assinaturas"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardSaldo" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewAssinaturas"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnIrParaNovaAssinatura"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textMinhasAssinaturas" />
+
     <Button
         android:id="@+id/btnIrParaNovaAssinatura"
         android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="40dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="8dp"
         android:backgroundTint="#2E7D32"
-        android:text="@string/nova_assinatura"
+        android:text="@string/adicionar_nova_assinatura"
         android:textColor="#FFFFFF"
-        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/btnSair"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardSaldo" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/btnSair"
         android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="16dp"
+        android:layout_height="50dp"
         android:backgroundTint="#D32F2F"
         android:text="@string/sair_da_conta"
         android:textColor="#FFFFFF"
-        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnIrParaNovaAssinatura" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

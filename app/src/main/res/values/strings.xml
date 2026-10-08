@@ -18,7 +18,13 @@
     <!-- Parte da activity_nova_assinatura -->
     <string name="ola_gestor">Olá, Gestor</string>
     <string name="gasto_total_da_familia">Gasto Total da Família</string>
-    <string name="valor_exemplo">R$ 450,00</string>
-    <string name="nova_assinatura">Adicionar Nova Assinatura</string>
+    <string name="valor_exemplo">R$ 0,00</string>
     <string name="sair_da_conta">Sair da Conta</string>
+    <string name="minhas_assinaturas">Minhas Assinaturas</string>
+    <string name="adicionar_nova_assinatura">Adicionar Nova Assinatura</string>
+
+    <!-- Parte da item_assinatura -->
+    <string name="assinatura">Netflix</string>
+    <string name="tipo_uso">Uso Geral</string>
+    <string name="valor_assinatura">R$ 55.90</string>
 </resources>
