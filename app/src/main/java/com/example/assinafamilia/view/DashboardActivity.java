@@ -49,7 +49,6 @@ public class DashboardActivity extends AppCompatActivity {
 
         binding.recyclerViewAssinaturas.setAdapter(adapter);
 
-        // Botões
         binding.btnIrParaNovaAssinatura.setOnClickListener(v -> {
             startActivity(new Intent(DashboardActivity.this, NovaAssinaturaActivity.class));
         });

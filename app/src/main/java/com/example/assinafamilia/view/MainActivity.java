@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
             String email = binding.editEmail.getText().toString();
             String senha = binding.editSenha.getText().toString();
 
-            if (email.equals("admin@admin.com") && senha.equals("1234")) {
+            if (email.equals("admin.com") && senha.equals("1234")) {
                 Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
 
                 startActivity(intent);

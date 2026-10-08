@@ -13,6 +13,7 @@
     <string name="hint_nome_servico">Nome do Serviço (ex: Netflix)</string>
     <string name="hint_valor_total">Valor (ex: 55.90)</string>
     <string name="hint_tipo_uso">Tipo de Uso (Geral ou Individual)</string>
+    <string name="assinaturas_ativas">Assinaturas ativas</string>
     <string name="btnsalvar">Salvar Assinatura</string>
 
     <!-- Parte da activity_nova_assinatura -->
