@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "895990886241",
+    "project_id": "assina-familia",
+    "storage_bucket": "assina-familia.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:895990886241:android:6cef6511ca4dbde88ddf20",
+        "android_client_info": {
+          "package_name": "com.example.assinafamilia"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDr7uBKG1Uue22JCYlGqmCPvb5HW04XXDc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

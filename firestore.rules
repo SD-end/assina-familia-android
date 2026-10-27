@@ -1,0 +1,238 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function estaAutenticado() {
+      return request.auth != null;
+    }
+
+    function caminhoUsuario(familiaId) {
+      return /databases/$(database)/documents/familias/$(familiaId)/usuarios/$(request.auth.uid);
+    }
+
+    function pertenceAFamilia(familiaId) {
+      return estaAutenticado() &&
+        exists(caminhoUsuario(familiaId)) &&
+        get(caminhoUsuario(familiaId)).data.ativo == true;
+    }
+
+    function isGestor(familiaId) {
+      return estaAutenticado() && (
+        (
+          exists(caminhoUsuario(familiaId)) &&
+          get(caminhoUsuario(familiaId)).data.ativo == true &&
+          get(caminhoUsuario(familiaId)).data.perfil == 'GESTOR'
+        ) ||
+        (
+          exists(/databases/$(database)/documents/familias/$(familiaId)) &&
+          get(/databases/$(database)/documents/familias/$(familiaId)).data.criadorUid == request.auth.uid
+        )
+      );
+    }
+
+    function isStringValida(valor, minLen, maxLen) {
+      return valor is string && valor.size() >= minLen && valor.size() <= maxLen;
+    }
+
+    function isStringOpcional(data, campo, minLen, maxLen) {
+      return !(campo in data) || data[campo] == null || isStringValida(data[campo], minLen, maxLen);
+    }
+
+    function isIntOpcional(data, campo) {
+      return !(campo in data) || data[campo] == null || data[campo] is int;
+    }
+
+    function isBoolOpcional(data, campo) {
+      return !(campo in data) || data[campo] == null || data[campo] is bool;
+    }
+
+    function isEmailValido(email) {
+      return isStringValida(email, 3, 150) &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function campoImutavel(campo) {
+      return !(campo in resource.data) ||
+        (campo in request.resource.data && request.resource.data[campo] == resource.data[campo]);
+    }
+
+    function isValidFamilia(data) {
+      return data.keys().hasOnly(['nome', 'criadorUid', 'ativa', 'dataCriacao']) &&
+        isStringValida(data.nome, 1, 120) &&
+        isStringValida(data.criadorUid, 1, 128) &&
+        isBoolOpcional(data, 'ativa') &&
+        (!( 'dataCriacao' in data ) || data.dataCriacao is int || data.dataCriacao is timestamp);
+    }
+
+    function isValidUsuario(data, familiaId, usuarioId) {
+      return data.keys().hasOnly([
+          'id', 'firestoreUid', 'familiaId', 'nome', 'email',
+          'senhaHash', 'perfil', 'ativo', 'sincronizado', 'gestor'
+        ]) &&
+        data.familiaId == familiaId &&
+        isStringValida(data.nome, 1, 120) &&
+        isEmailValido(data.email) &&
+        data.perfil in ['GESTOR', 'MEMBRO'] &&
+        data.ativo is bool &&
+        (!( 'firestoreUid' in data ) || data.firestoreUid == null || data.firestoreUid == usuarioId) &&
+        isStringOpcional(data, 'senhaHash', 0, 256) &&
+        isIntOpcional(data, 'id') &&
+        isBoolOpcional(data, 'sincronizado') &&
+        isBoolOpcional(data, 'gestor');
+    }
+
+    function isValidCategoria(data, familiaId) {
+      return data.keys().hasOnly([
+          'id', 'firestoreId', 'familiaId', 'nome', 'descricao', 'ativa', 'sincronizado'
+        ]) &&
+        data.familiaId == familiaId &&
+        isStringValida(data.nome, 1, 100) &&
+        isStringOpcional(data, 'descricao', 0, 300) &&
+        data.ativa is bool &&
+        isStringOpcional(data, 'firestoreId', 1, 128) &&
+        isIntOpcional(data, 'id') &&
+        isBoolOpcional(data, 'sincronizado');
+    }
+
+    function isValidAssinatura(data, familiaId) {
+      return data.keys().hasOnly([
+          'id', 'donoId', 'donoUid', 'categoriaId', 'categoriaFirestoreId',
+          'nomeServico', 'valorOriginal', 'moeda', 'valorTotal', 'periodicidade',
+          'tipoDoUso', 'dataProximoVencimento', 'status', 'firestoreId',
+          'familiaId', 'sincronizado'
+        ]) &&
+        data.familiaId == familiaId &&
+        isStringValida(data.donoUid, 1, 128) &&
+        isStringValida(data.nomeServico, 1, 120) &&
+        data.valorOriginal is number && data.valorOriginal > 0 &&
+        data.moeda in ['BRL', 'USD', 'EUR'] &&
+        data.valorTotal is number && data.valorTotal > 0 &&
+        data.periodicidade in ['MENSAL', 'ANUAL'] &&
+        data.tipoDoUso in ['GERAL', 'INDIVIDUAL'] &&
+        data.dataProximoVencimento is int && data.dataProximoVencimento > 0 &&
+        data.status is bool &&
+        isIntOpcional(data, 'id') &&
+        isIntOpcional(data, 'donoId') &&
+        isIntOpcional(data, 'categoriaId') &&
+        isStringOpcional(data, 'categoriaFirestoreId', 1, 128) &&
+        isStringOpcional(data, 'firestoreId', 1, 128) &&
+        isBoolOpcional(data, 'sincronizado');
+    }
+
+    function isValidCobranca(data, familiaId) {
+      return data.keys().hasOnly([
+          'id', 'assinaturaId', 'assinaturaFirestoreId', 'donoUid', 'tipoDoUso',
+          'dataVencimento', 'valorCobrado', 'statusPagamento', 'notificado24h',
+          'firestoreId', 'familiaId', 'sincronizado'
+        ]) &&
+        data.familiaId == familiaId &&
+        data.dataVencimento is int && data.dataVencimento > 0 &&
+        data.valorCobrado is number && data.valorCobrado >= 0 &&
+        data.statusPagamento in ['PENDENTE', 'PAGA', 'ATRASADA'] &&
+        data.notificado24h is bool &&
+        isIntOpcional(data, 'id') &&
+        isIntOpcional(data, 'assinaturaId') &&
+        isStringOpcional(data, 'assinaturaFirestoreId', 1, 128) &&
+        isStringOpcional(data, 'donoUid', 1, 128) &&
+        (!( 'tipoDoUso' in data ) || data.tipoDoUso == null || data.tipoDoUso in ['GERAL', 'INDIVIDUAL']) &&
+        isStringOpcional(data, 'firestoreId', 1, 128) &&
+        isBoolOpcional(data, 'sincronizado');
+    }
+
+    function moradorVinculadoACobranca(familiaId, cobrancaData) {
+      return pertenceAFamilia(familiaId) && (
+        ('tipoDoUso' in cobrancaData && cobrancaData.tipoDoUso == 'GERAL') ||
+        ('donoUid' in cobrancaData && cobrancaData.donoUid == request.auth.uid) ||
+        (
+          'assinaturaFirestoreId' in cobrancaData &&
+          cobrancaData.assinaturaFirestoreId is string &&
+          exists(/databases/$(database)/documents/familias/$(familiaId)/assinaturas/$(cobrancaData.assinaturaFirestoreId)) &&
+          (
+            get(/databases/$(database)/documents/familias/$(familiaId)/assinaturas/$(cobrancaData.assinaturaFirestoreId)).data.tipoDoUso == 'GERAL' ||
+            get(/databases/$(database)/documents/familias/$(familiaId)/assinaturas/$(cobrancaData.assinaturaFirestoreId)).data.donoUid == request.auth.uid
+          )
+        ) ||
+        (!('tipoDoUso' in cobrancaData) && !('donoUid' in cobrancaData) && !('assinaturaFirestoreId' in cobrancaData))
+      );
+    }
+
+    match /familias/{familiaId} {
+      allow read: if pertenceAFamilia(familiaId) || (estaAutenticado() && resource.data.criadorUid == request.auth.uid);
+      allow create: if estaAutenticado() && request.resource.data.criadorUid == request.auth.uid && isValidFamilia(request.resource.data);
+      allow update: if isGestor(familiaId) && isValidFamilia(request.resource.data) && campoImutavel('criadorUid') && campoImutavel('dataCriacao');
+      allow delete: if isGestor(familiaId);
+
+      match /usuarios/{usuarioId} {
+        allow read: if pertenceAFamilia(familiaId) || (estaAutenticado() && request.auth.uid == usuarioId);
+        allow create: if estaAutenticado() && isValidUsuario(request.resource.data, familiaId, usuarioId) && (
+          isGestor(familiaId) || (request.auth.uid == usuarioId && request.resource.data.perfil == 'MEMBRO' && request.resource.data.ativo == true)
+        );
+        allow update: if estaAutenticado() && isValidUsuario(request.resource.data, familiaId, usuarioId) &&
+          campoImutavel('familiaId') && campoImutavel('firestoreUid') && (
+            isGestor(familiaId) || (
+              pertenceAFamilia(familiaId) && request.auth.uid == usuarioId &&
+              request.resource.data.perfil == resource.data.perfil &&
+              request.resource.data.ativo == resource.data.ativo
+            )
+          );
+        allow delete: if isGestor(familiaId);
+      }
+
+      match /categorias/{categoriaId} {
+        allow read: if pertenceAFamilia(familiaId);
+        allow create: if isGestor(familiaId) && isValidCategoria(request.resource.data, familiaId);
+        allow update: if isGestor(familiaId) && isValidCategoria(request.resource.data, familiaId) && campoImutavel('familiaId');
+        allow delete: if false; // Inativação apenas lógica via campo ativa == false
+      }
+
+      match /assinaturas/{assinaturaId} {
+        allow read: if isGestor(familiaId) || (
+          pertenceAFamilia(familiaId) && (
+            resource.data.tipoDoUso == 'GERAL' ||
+            (resource.data.tipoDoUso == 'INDIVIDUAL' && resource.data.donoUid == request.auth.uid)
+          )
+        );
+
+        allow create: if isValidAssinatura(request.resource.data, familiaId) && (
+          isGestor(familiaId) || (
+            pertenceAFamilia(familiaId) &&
+            request.resource.data.donoUid == request.auth.uid &&
+            request.resource.data.tipoDoUso == 'INDIVIDUAL'
+          )
+        );
+
+        allow update: if isValidAssinatura(request.resource.data, familiaId) && campoImutavel('familiaId') && (
+          isGestor(familiaId) || (
+            pertenceAFamilia(familiaId) &&
+            resource.data.donoUid == request.auth.uid &&
+            resource.data.tipoDoUso == 'INDIVIDUAL' &&
+            request.resource.data.donoUid == request.auth.uid &&
+            request.resource.data.tipoDoUso == 'INDIVIDUAL'
+          )
+        );
+
+        allow delete: if isGestor(familiaId) || (
+          pertenceAFamilia(familiaId) && resource.data.donoUid == request.auth.uid && resource.data.tipoDoUso == 'INDIVIDUAL'
+        );
+      }
+
+      match /cobrancas/{cobrancaId} {
+        allow read: if isGestor(familiaId) || moradorVinculadoACobranca(familiaId, resource.data);
+        allow create: if isValidCobranca(request.resource.data, familiaId) && (isGestor(familiaId) || moradorVinculadoACobranca(familiaId, request.resource.data));
+        allow update: if isValidCobranca(request.resource.data, familiaId) &&
+          campoImutavel('familiaId') &&
+          !(resource.data.statusPagamento == 'PAGA' && request.resource.data.statusPagamento == 'ATRASADA') && (
+            isGestor(familiaId) || (
+              moradorVinculadoACobranca(familiaId, resource.data) &&
+              request.resource.data.diff(resource.data).affectedKeys().hasOnly(['statusPagamento', 'notificado24h', 'sincronizado'])
+            )
+          );
+        allow delete: if isGestor(familiaId);
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
