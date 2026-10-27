@@ -37,6 +37,8 @@ public class NovaAssinaturaActivity extends AppCompatActivity {
             float valor = Float.parseFloat(valorString);
 
             Assinatura novaAssinatura = new Assinatura(nome, valor, tipo);
+            novaAssinatura.setDonoId(AppDatabase.ID_USUARIO_PADRAO);
+            novaAssinatura.setCategoriaId(AppDatabase.ID_CATEGORIA_PADRAO);
 
             dao.insert(novaAssinatura);
 
