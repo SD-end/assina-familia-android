@@ -40,10 +40,13 @@ public class NovaAssinaturaActivity extends AppCompatActivity {
             novaAssinatura.setDonoId(AppDatabase.ID_USUARIO_PADRAO);
             novaAssinatura.setCategoriaId(AppDatabase.ID_CATEGORIA_PADRAO);
 
-            dao.insert(novaAssinatura);
-
-            Toast.makeText(this, "Assinatura salva com sucesso!", Toast.LENGTH_LONG).show();
-            finish();
+            AppDatabase.databaseWriteExecutor.execute(() -> {
+                dao.inserir(novaAssinatura);
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Assinatura salva com sucesso!", Toast.LENGTH_LONG).show();
+                    finish();
+                });
+            });
         });
     }
 }

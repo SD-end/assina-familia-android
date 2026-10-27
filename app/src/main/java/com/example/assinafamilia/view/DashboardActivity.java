@@ -38,10 +38,13 @@ public class DashboardActivity extends AppCompatActivity {
                     .setMessage("Deseja realmente apagar '" + assinatura.getNomeServico() + "'?")
                     .setPositiveButton("Sim", (dialog, which) -> {
 
-                        dao.delete(assinatura);
-                        Toast.makeText(this, "Assinatura apagada!", Toast.LENGTH_SHORT).show();
-
-                        carregarDadosDoBanco();
+                        AppDatabase.databaseWriteExecutor.execute(() -> {
+                            dao.deletar(assinatura);
+                            runOnUiThread(() -> {
+                                Toast.makeText(this, "Assinatura apagada!", Toast.LENGTH_SHORT).show();
+                                carregarDadosDoBanco();
+                            });
+                        });
                     })
                     .setNegativeButton("Não", null)
                     .show();
@@ -66,13 +69,22 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void carregarDadosDoBanco() {
-        List<Assinatura> listaSalva = dao.getAllAssinaturas();
-        adapter.setAssinaturas(listaSalva);
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            List<Assinatura> listaSalva = dao.getAllAssinaturas();
 
-        float totalGasto = 0;
-        for (Assinatura ass : listaSalva) {
-            totalGasto += ass.getValorTotal();
-        }
-        binding.txtGastoTotal.setText(String.format("R$ %.2f", totalGasto));
+            float totalGasto = 0;
+            for (Assinatura ass : listaSalva) {
+                totalGasto += ass.getValorTotal();
+            }
+            final float totalCalculado = totalGasto;
+
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+                adapter.setAssinaturas(listaSalva);
+                binding.txtGastoTotal.setText(String.format("R$ %.2f", totalCalculado));
+            });
+        });
     }
 }
