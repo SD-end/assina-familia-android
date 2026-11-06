@@ -1,0 +1,48 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layoutEstadoVazio"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <ImageView
+        android:id="@+id/imgEstadoVazio"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:contentDescription="@string/estado_vazio_titulo"
+        android:src="@android:drawable/ic_dialog_info"
+        app:tint="@color/cor_verde_primario" />
+
+    <TextView
+        android:id="@+id/txtTituloVazio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="@string/estado_vazio_titulo"
+        android:textColor="@color/cor_texto_primario"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/txtDescricaoVazio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:text="@string/estado_vazio_descricao"
+        android:textColor="@color/cor_texto_secundario"
+        android:textSize="14sp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnAcaoVazio"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/acao_tentar_novamente"
+        android:visibility="gone" />
+
+</LinearLayout>

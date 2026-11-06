@@ -1,7 +1,31 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.AssinaFamilia" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+<resources>
+    <style name="Base.Theme.AssinaFamilia" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/cor_verde_escuro</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/cor_verde_claro</item>
+        <item name="colorOnPrimaryContainer">@color/cor_verde_escuro</item>
+        <item name="colorSecondary">@color/cor_verde_primario</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/cor_verde_claro</item>
+        <item name="colorOnSecondaryContainer">@color/cor_verde_primario</item>
+        <item name="colorTertiary">@color/cor_terciaria</item>
+        <item name="colorOnTertiary">@color/white</item>
+        <item name="colorTertiaryContainer">@color/cor_selo_membro_fundo</item>
+        <item name="colorOnTertiaryContainer">@color/cor_selo_membro</item>
+        <item name="android:colorBackground">@color/cor_fundo_tela</item>
+        <item name="colorOnBackground">@color/cor_texto_primario</item>
+        <item name="colorSurface">@color/cor_fundo_cartao</item>
+        <item name="colorOnSurface">@color/cor_texto_primario</item>
+        <item name="colorSurfaceVariant">@color/cor_fundo_secundario</item>
+        <item name="colorOnSurfaceVariant">@color/cor_texto_secundario</item>
+        <item name="colorOutline">@color/cor_borda_sutil</item>
+        <item name="colorError">@color/cor_status_atrasado</item>
+        <item name="colorOnError">@color/white</item>
+        <item name="colorErrorContainer">@color/cor_status_atrasado_fundo</item>
+        <item name="colorOnErrorContainer">@color/cor_status_atrasado</item>
+        <item name="android:statusBarColor">@color/cor_fundo_tela</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
+
+    <style name="Theme.AssinaFamilia" parent="Base.Theme.AssinaFamilia" />
 </resources>

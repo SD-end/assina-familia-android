@@ -2,4 +2,28 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="cor_verde_escuro">#006633</color>
+    <color name="cor_verde_primario">#00805A</color>
+    <color name="cor_verde_claro">#E6F4EF</color>
+    <color name="cor_verde_menta_texto">#D7FFF1</color>
+    <color name="cor_primaria">#059669</color>
+    <color name="cor_secundaria">#10B981</color>
+    <color name="cor_terciaria">#0284C7</color>
+    <color name="cor_neutra">#111827</color>
+    <color name="cor_fundo_tela">#F8FAFC</color>
+    <color name="cor_fundo_cartao">#FFFFFF</color>
+    <color name="cor_fundo_secundario">#EEF2F6</color>
+    <color name="cor_botao_invertido">#232A34</color>
+    <color name="cor_borda_sutil">#EAECF0</color>
+    <color name="cor_texto_primario">#182230</color>
+    <color name="cor_texto_secundario">#475467</color>
+    <color name="cor_texto_apoio">#667085</color>
+    <color name="cor_status_pago">#1B5E20</color>
+    <color name="cor_status_pago_fundo">#E8F5E9</color>
+    <color name="cor_status_atrasado">#D32F2F</color>
+    <color name="cor_status_atrasado_fundo">#FFEBEE</color>
+    <color name="cor_status_pendente">#B54708</color>
+    <color name="cor_status_pendente_fundo">#FEF0C7</color>
+    <color name="cor_selo_membro">#175CD3</color>
+    <color name="cor_selo_membro_fundo">#EFF8FF</color>
 </resources>
