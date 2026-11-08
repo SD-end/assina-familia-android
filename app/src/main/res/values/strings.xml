@@ -33,13 +33,13 @@
     <string name="acao_esqueci_senha">Esqueci minha senha</string>
     <string name="texto_sem_conta">Sua casa ainda não usa o app?</string>
     <string name="acao_criar_conta_familiar">Criar conta familiar</string>
-    <string name="titulo_criar_conta">Criar Conta Familiar</string>
-    <string name="subtitulo_criar_conta">Seja o gestor da sua casa e comece a dividir as assinaturas</string>
+    <string name="titulo_criar_conta">Criar Conta</string>
+    <string name="subtitulo_criar_conta">Seja o gestor da sua casa e comece a dividir as assinaturas.</string>
     <string name="acao_criar_minha_familia">Criar minha família</string>
     <string name="texto_ja_tem_conta">Já tem uma conta?</string>
     <string name="acao_entrar">Entrar</string>
     <string name="titulo_recuperar_senha">Esqueceu sua senha?</string>
-    <string name="subtitulo_recuperar_senha">Informe seu e-mail cadastrado para receber o link de redefinição.</string>
+    <string name="subtitulo_recuperar_senha">Não se preocupe! Digite o e-mail cadastrado abaixo e enviaremos um link para você redefinir sua senha.</string>
     <string name="acao_enviar_link_recuperacao">Enviar link de recuperação</string>
     <string name="acao_voltar_login">Voltar ao login</string>
     <string name="desc_logo_app">Logotipo do Assina Família</string>
@@ -123,4 +123,13 @@
     <string name="dica_confirmar_nova_senha">Confirmar nova senha</string>
     <string name="acao_salvar_alteracoes">Salvar Alterações</string>
     <string name="desc_adicionar_morador">Adicionar novo morador</string>
+    <string name="dica_email_placeholder">seu@email.com</string>
+    <string name="dica_senha_placeholder">••••••••</string>
+    <string name="aviso_tela_em_breve">Tela disponível no próximo passo.</string>
+    <string name="dica_nome_placeholder">Ex: João Silva</string>
+    <string name="dica_email_cadastro_placeholder">Ex: seuemail@exemplo.com</string>
+    <string name="aviso_sem_internet_cadastro">Sem conexão com a internet. Conecte-se para criar uma conta.</string>
+    <string name="texto_lembrou_senha">Lembrou da senha?</string>
+    <string name="sucesso_link_recuperacao">Link de recuperação enviado! Verifique sua caixa de entrada e spam.</string>
+    <string name="aviso_sem_internet_recuperacao">Sem conexão com a internet. Conecte-se para recuperar sua senha.</string>
 </resources>

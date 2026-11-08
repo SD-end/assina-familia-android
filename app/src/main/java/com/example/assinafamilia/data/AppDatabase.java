@@ -66,6 +66,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             .fallbackToDestructiveMigration()
                             .addCallback(callbackSemeadura)
                             .build();
+                    databaseWriteExecutor.execute(() -> INSTANCE.getOpenHelper().getWritableDatabase());
                 }
             }
         }
@@ -76,18 +77,44 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
-            databaseWriteExecutor.execute(() -> {
-                AppDatabase banco = INSTANCE;
-                if (banco == null) {
-                    return;
-                }
-                banco.runInTransaction(() -> {
-                    semearUsuarioPadrao(banco.usuarioDao());
-                    semearCategoriasPadrao(banco.categoriaDao());
-                });
-            });
+            garantirSemeaduraPadrao();
+        }
+
+        @Override
+        public void onOpen(@NonNull SupportSQLiteDatabase db) {
+            super.onOpen(db);
+            garantirSemeaduraPadrao();
         }
     };
+
+    private static void garantirSemeaduraPadrao() {
+        databaseWriteExecutor.execute(() -> {
+            AppDatabase banco = INSTANCE;
+            if (banco == null) {
+                return;
+            }
+            banco.garantirDadosPadraoSincrono();
+        });
+    }
+
+    public void garantirDadosPadraoSincrono() {
+        runInTransaction(() -> {
+            Usuario existente = usuarioDao().buscarPorEmail(EMAIL_USUARIO_PADRAO);
+            if (existente == null) {
+                semearUsuarioPadrao(usuarioDao());
+            } else if (existente.getFirestoreUid() == null || existente.getFirestoreUid().isEmpty()) {
+                String hashEsperado = SessionManager.gerarHashSenha(SENHA_USUARIO_PADRAO);
+                if (!hashEsperado.equals(existente.getSenhaHash()) || !existente.isAtivo()) {
+                    existente.setSenhaHash(hashEsperado);
+                    existente.setAtivo(true);
+                    usuarioDao().atualizar(existente);
+                }
+            }
+            if (categoriaDao().buscarPorId(ID_CATEGORIA_PADRAO) == null) {
+                semearCategoriasPadrao(categoriaDao());
+            }
+        });
+    }
 
     private static void semearUsuarioPadrao(@NonNull UsuarioDao usuarioDao) {
         Usuario gestorPadrao = new Usuario(
@@ -100,7 +127,9 @@ public abstract class AppDatabase extends RoomDatabase {
                 true,
                 false
         );
-        gestorPadrao.setId(ID_USUARIO_PADRAO);
+        if (usuarioDao.buscarPorId(ID_USUARIO_PADRAO) == null) {
+            gestorPadrao.setId(ID_USUARIO_PADRAO);
+        }
         usuarioDao.inserir(gestorPadrao);
     }
 

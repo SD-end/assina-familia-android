@@ -33,6 +33,7 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -72,7 +73,7 @@ public class AuthRepository {
                 new MutableLiveData<>(Resource.carregando(null));
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            String emailLimpo = email != null ? email.trim() : "";
+            String emailLimpo = email != null ? email.trim().toLowerCase(Locale.ROOT) : "";
             String senhaInformada = senha != null ? senha : "";
 
             if (emailLimpo.isEmpty() || senhaInformada.isEmpty()) {
@@ -80,8 +81,15 @@ public class AuthRepository {
                 return;
             }
 
-            if (!NetworkUtils.temConexaoInternet(contexto) || !firebaseAuthSource.isFirebaseDisponivel()) {
-                autenticarModoOffline(emailLimpo, senhaInformada, resultado);
+            if (!NetworkUtils.temConexaoInternet(contexto)) {
+                resultado.postValue(Resource.erro(
+                        "Sem conexão com a internet. Conecte-se para entrar na sua conta.", null));
+                return;
+            }
+
+            if (!firebaseAuthSource.isFirebaseDisponivel()) {
+                resultado.postValue(Resource.erro(
+                        "Serviço de autenticação indisponível neste dispositivo.", null));
                 return;
             }
 
@@ -90,8 +98,9 @@ public class AuthRepository {
                 firebaseUser = aguardar(firebaseAuthSource.entrar(emailLimpo, senhaInformada));
             } catch (Exception excecao) {
                 Exception causa = extrairCausa(excecao);
-                if (deveUsarFallbackOfflineNoLogin(causa, emailLimpo, senhaInformada)) {
-                    autenticarModoOffline(emailLimpo, senhaInformada, resultado);
+                if (causa instanceof FirebaseNetworkException || causa instanceof TimeoutException) {
+                    resultado.postValue(Resource.erro(
+                            "Sem conexão com a internet. Conecte-se para entrar na sua conta.", null));
                 } else {
                     resultado.postValue(Resource.erro(FirebaseAuthSource.obterMensagemErro(causa), null));
                 }
@@ -149,8 +158,14 @@ public class AuthRepository {
                             true,
                             usuarioRemoto != null
                     );
-                    int idGerado = (int) usuarioDao.inserir(usuarioLogado);
-                    usuarioLogado.setId(idGerado);
+                    Usuario existentePorEmail = usuarioDao.buscarPorEmail(emailLimpo);
+                    if (existentePorEmail != null) {
+                        usuarioLogado.setId(existentePorEmail.getId());
+                        usuarioDao.atualizar(usuarioLogado);
+                    } else {
+                        int idGerado = (int) usuarioDao.inserir(usuarioLogado);
+                        usuarioLogado.setId(idGerado);
+                    }
                 } else {
                     usuarioLogado.setFirestoreUid(uid);
                     usuarioLogado.setFamiliaId(familiaId);
@@ -181,6 +196,7 @@ public class AuthRepository {
                             localExistente,
                             "Autenticado com dados locais. Sincronização em segundo plano agendada."));
                 } else {
+                    firebaseAuthSource.sair();
                     resultado.postValue(Resource.erro(FirebaseAuthSource.obterMensagemErro(causa), null));
                 }
             }
@@ -198,7 +214,7 @@ public class AuthRepository {
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
             String nomeLimpo = nome != null ? nome.trim() : "";
-            String emailLimpo = email != null ? email.trim() : "";
+            String emailLimpo = email != null ? email.trim().toLowerCase(Locale.ROOT) : "";
             String senhaInformada = senha != null ? senha : "";
 
             if (nomeLimpo.isEmpty() || emailLimpo.isEmpty() || senhaInformada.isEmpty()) {
@@ -206,15 +222,17 @@ public class AuthRepository {
                 return;
             }
 
-            if (usuarioDao.buscarPorEmail(emailLimpo) != null) {
-                resultado.postValue(Resource.erro("Este e-mail já está cadastrado.", null));
+            String senhaHash = SessionManager.gerarHashSenha(senhaInformada);
+
+            if (!NetworkUtils.temConexaoInternet(contexto)) {
+                resultado.postValue(Resource.erro(
+                        "Sem conexão com a internet. Conecte-se para criar uma conta.", null));
                 return;
             }
 
-            String senhaHash = SessionManager.gerarHashSenha(senhaInformada);
-
-            if (!NetworkUtils.temConexaoInternet(contexto) || !firebaseAuthSource.isFirebaseDisponivel()) {
-                cadastrarGestorModoOffline(nomeLimpo, emailLimpo, senhaHash, resultado);
+            if (!firebaseAuthSource.isFirebaseDisponivel()) {
+                resultado.postValue(Resource.erro(
+                        "Serviço de cadastro indisponível neste dispositivo.", null));
                 return;
             }
 
@@ -225,7 +243,8 @@ public class AuthRepository {
             } catch (Exception excecao) {
                 Exception causa = extrairCausa(excecao);
                 if (causa instanceof FirebaseNetworkException || causa instanceof TimeoutException) {
-                    cadastrarGestorModoOffline(nomeLimpo, emailLimpo, senhaHash, resultado);
+                    resultado.postValue(Resource.erro(
+                            "Sem conexão com a internet. Conecte-se para criar uma conta.", null));
                 } else {
                     resultado.postValue(Resource.erro(FirebaseAuthSource.obterMensagemErro(causa), null));
                 }
@@ -284,7 +303,7 @@ public class AuthRepository {
                 new MutableLiveData<>(Resource.carregando(null));
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            String emailLimpo = email != null ? email.trim() : "";
+            String emailLimpo = email != null ? email.trim().toLowerCase(Locale.ROOT) : "";
             if (emailLimpo.isEmpty()) {
                 resultado.postValue(Resource.erro("Informe o e-mail para recuperação.", false));
                 return;
@@ -411,64 +430,17 @@ public class AuthRepository {
         return sessionManager.isLogado();
     }
 
-    private void autenticarModoOffline(@NonNull String email,
-                                       @NonNull String senha,
-                                       @NonNull MutableLiveData<Resource<Usuario>> resultado) {
-        String senhaHash = SessionManager.gerarHashSenha(senha);
-        Usuario usuarioLocal = usuarioDao.autenticarOffline(email, senhaHash);
-
-        if (usuarioLocal == null) {
-            boolean emailConhecido = usuarioDao.buscarPorEmail(email) != null;
-            String mensagem = emailConhecido
-                    ? "E-mail ou senha inválidos."
-                    : "Sem conexão com a internet para autenticar esta conta neste dispositivo.";
-            resultado.postValue(Resource.erro(mensagem, null));
-            return;
-        }
-
-        if (!usuarioLocal.isAtivo()) {
-            sessionManager.limparSessao();
-            resultado.postValue(Resource.erro(
-                    "Este acesso foi desativado pelo gestor da família.", null));
-            return;
-        }
-
-        salvarSessaoEAgendar(usuarioLocal);
-        resultado.postValue(Resource.sucessoComFallbackOffline(
-                usuarioLocal,
-                "Modo offline ativo. Exibindo dados salvos neste dispositivo."));
-    }
-
-    private void cadastrarGestorModoOffline(@NonNull String nome,
-                                            @NonNull String email,
-                                            @NonNull String senhaHash,
-                                            @NonNull MutableLiveData<Resource<Usuario>> resultado) {
-        String familiaId = UUID.randomUUID().toString();
-        Usuario gestor = new Usuario(
-                null,
-                familiaId,
-                nome,
-                email,
-                senhaHash,
-                DomainConstants.PERFIL_GESTOR,
-                true,
-                false
-        );
-        List<Categoria> categoriasPadrao = criarCategoriasPadrao(familiaId);
-        persistirGestorECategoriasLocais(gestor, categoriasPadrao);
-
-        salvarSessaoEAgendar(gestor);
-        WorkScheduler.enfileirarSincronizacaoQuandoOnline(contexto);
-        resultado.postValue(Resource.sucessoComFallbackOffline(
-                gestor,
-                "Conta criada localmente em modo offline."));
-    }
-
     private void persistirGestorECategoriasLocais(@NonNull Usuario gestor,
                                                   @NonNull List<Categoria> categorias) {
         banco.runInTransaction(() -> {
-            int idGestor = (int) usuarioDao.inserir(gestor);
-            gestor.setId(idGestor);
+            Usuario existenteMesmoEmail = usuarioDao.buscarPorEmail(gestor.getEmail());
+            if (existenteMesmoEmail != null) {
+                gestor.setId(existenteMesmoEmail.getId());
+                usuarioDao.atualizar(gestor);
+            } else {
+                int idGestor = (int) usuarioDao.inserir(gestor);
+                gestor.setId(idGestor);
+            }
             for (Categoria categoria : categorias) {
                 int idCategoria = (int) categoriaDao.inserir(categoria);
                 categoria.setId(idCategoria);
@@ -824,16 +796,6 @@ public class AuthRepository {
             }
         }
         return 0;
-    }
-
-    private boolean deveUsarFallbackOfflineNoLogin(@NonNull Exception causa,
-                                                   @NonNull String email,
-                                                   @NonNull String senha) {
-        if (causa instanceof FirebaseNetworkException || causa instanceof TimeoutException) {
-            return true;
-        }
-        Usuario local = usuarioDao.autenticarOffline(email, SessionManager.gerarHashSenha(senha));
-        return local != null && TextUtils.isEmpty(local.getFirestoreUid());
     }
 
     private void salvarSessaoEAgendar(@NonNull Usuario usuario) {
