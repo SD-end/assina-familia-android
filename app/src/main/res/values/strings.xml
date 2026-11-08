@@ -59,6 +59,7 @@
     <string name="titulo_proximas_cobrancas">Próximas Cobranças</string>
     <string name="acao_confirmar_pagamento">Pagar</string>
     <string name="titulo_categorias">Categorias</string>
+    <string name="subtitulo_categorias">Organize suas assinaturas por categorias da casa</string>
     <string name="filtro_todas">Todas</string>
     <string name="filtro_ativas">Ativas</string>
     <string name="filtro_inativas">Inativas</string>
@@ -67,7 +68,9 @@
     <string name="titulo_nova_categoria">Nova Categoria</string>
     <string name="titulo_editar_categoria">Editar Categoria</string>
     <string name="dica_nome_categoria">Nome da categoria</string>
+    <string name="dica_nome_categoria_placeholder">Ex: Streaming, Jogos, Educação</string>
     <string name="dica_descricao_categoria">Descrição da categoria</string>
+    <string name="dica_descricao_categoria_placeholder">Ex: Serviços de filmes, séries e música</string>
     <string name="acao_salvar">Salvar</string>
     <string name="acao_cancelar">Cancelar</string>
     <string name="acao_editar">Editar</string>
@@ -75,6 +78,19 @@
     <string name="acao_ativar">Ativar</string>
     <string name="acao_excluir">Excluir</string>
     <string name="desc_adicionar_categoria">Adicionar nova categoria</string>
+    <string name="erro_nome_categoria_obrigatorio">Informe o nome da categoria (até 100 caracteres).</string>
+    <string name="erro_descricao_categoria_tamanho">A descrição deve ter no máximo 300 caracteres.</string>
+    <string name="sucesso_categoria_salva">Categoria salva com sucesso!</string>
+    <string name="sucesso_categoria_ativada">Categoria ativada com sucesso!</string>
+    <string name="sucesso_categoria_inativada">Categoria inativada com sucesso!</string>
+    <string name="sucesso_categoria_excluida">Categoria excluída com sucesso!</string>
+    <string name="aviso_categoria_inativada_por_vinculo">Esta categoria possui histórico de assinaturas e foi inativada.</string>
+    <string name="titulo_excluir_categoria">Excluir categoria?</string>
+    <string name="formato_msg_excluir_categoria">Deseja excluir a categoria &quot;%1$s&quot;? Caso existam assinaturas ativas vinculadas, ela será mantida.</string>
+    <string name="titulo_sem_categorias">Nenhuma categoria encontrada</string>
+    <string name="desc_sem_categorias">Não há categorias para o filtro selecionado.</string>
+    <string name="acao_nova_categoria">Nova categoria</string>
+    <string name="erro_operacao_categoria">Não foi possível concluir a operação.</string>
     <string name="titulo_assinaturas">Assinaturas</string>
     <string name="dica_buscar_assinatura">Buscar serviço pelo nome...</string>
     <string name="rotulo_morador_filtro">Morador</string>
