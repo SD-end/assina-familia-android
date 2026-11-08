@@ -1,0 +1,73 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layoutRaizContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cor_fundo_tela">
+
+    <LinearLayout
+        android:id="@+id/bannerConectividade"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/cor_status_pendente_fundo"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="10dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/imgIconeOffline"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="@string/aviso_modo_offline_banner"
+            android:src="@android:drawable/ic_dialog_alert"
+            app:tint="@color/cor_status_pendente" />
+
+        <TextView
+            android:id="@+id/txtBannerConectividade"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:text="@string/aviso_modo_offline_banner"
+            android:textColor="@color/cor_status_pendente"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/containerFragmentos"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/divisorNavegacao"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bannerConectividade" />
+
+    <View
+        android:id="@+id/divisorNavegacao"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/cor_borda_sutil"
+        app:layout_constraintBottom_toTopOf="@id/barraNavegacaoInferior"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/barraNavegacaoInferior"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/cor_fundo_cartao"
+        app:elevation="0dp"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
