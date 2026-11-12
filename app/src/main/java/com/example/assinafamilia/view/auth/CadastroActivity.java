@@ -13,7 +13,7 @@ import com.example.assinafamilia.R;
 import com.example.assinafamilia.databinding.ActivityCadastroBinding;
 import com.example.assinafamilia.model.Usuario;
 import com.example.assinafamilia.util.Resource;
-import com.example.assinafamilia.view.DashboardActivity;
+import com.example.assinafamilia.view.main.MainContainerActivity;
 import com.example.assinafamilia.viewmodel.AuthViewModel;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -97,13 +97,7 @@ public class CadastroActivity extends AppCompatActivity {
     }
 
     private void navegarParaPosLogin() {
-        Class<?> destino;
-        try {
-            destino = Class.forName("com.example.assinafamilia.view.main.MainContainerActivity");
-        } catch (ClassNotFoundException e) {
-            destino = DashboardActivity.class;
-        }
-        Intent intent = new Intent(this, destino);
+        Intent intent = new Intent(this, MainContainerActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

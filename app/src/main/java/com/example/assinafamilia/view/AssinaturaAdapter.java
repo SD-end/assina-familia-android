@@ -36,27 +36,23 @@ public class AssinaturaAdapter
                 @Override
                 public boolean areItemsTheSame(@NonNull ItemAssinatura itemAntigo,
                                                @NonNull ItemAssinatura novoItem) {
-                    return itemAntigo.assinatura.getId() == novoItem.assinatura.getId();
+                    return itemAntigo.id == novoItem.id;
                 }
 
                 @Override
                 public boolean areContentsTheSame(@NonNull ItemAssinatura itemAntigo,
                                                   @NonNull ItemAssinatura novoItem) {
-                    return TextUtils.equals(itemAntigo.assinatura.getNomeServico(),
-                            novoItem.assinatura.getNomeServico())
-                            && TextUtils.equals(itemAntigo.assinatura.getTipoDoUso(),
-                            novoItem.assinatura.getTipoDoUso())
-                            && Float.compare(itemAntigo.assinatura.getValorTotal(),
-                            novoItem.assinatura.getValorTotal()) == 0
-                            && Float.compare(itemAntigo.assinatura.getValorOriginal(),
-                            novoItem.assinatura.getValorOriginal()) == 0
-                            && TextUtils.equals(itemAntigo.assinatura.getMoeda(),
-                            novoItem.assinatura.getMoeda())
-                            && TextUtils.equals(itemAntigo.assinatura.getPeriodicidade(),
-                            novoItem.assinatura.getPeriodicidade())
-                            && itemAntigo.assinatura.getDataProximoVencimento()
-                            == novoItem.assinatura.getDataProximoVencimento()
-                            && itemAntigo.assinatura.isStatus() == novoItem.assinatura.isStatus()
+                    return TextUtils.equals(itemAntigo.nomeServico, novoItem.nomeServico)
+                            && TextUtils.equals(itemAntigo.tipoDoUso, novoItem.tipoDoUso)
+                            && Float.compare(itemAntigo.valorTotal, novoItem.valorTotal) == 0
+                            && Float.compare(itemAntigo.valorOriginal,
+                            novoItem.valorOriginal) == 0
+                            && TextUtils.equals(itemAntigo.moeda, novoItem.moeda)
+                            && TextUtils.equals(itemAntigo.periodicidade,
+                            novoItem.periodicidade)
+                            && itemAntigo.dataProximoVencimento
+                            == novoItem.dataProximoVencimento
+                            && itemAntigo.status == novoItem.status
                             && TextUtils.equals(itemAntigo.nomeDono, novoItem.nomeDono)
                             && TextUtils.equals(itemAntigo.nomeCategoria, novoItem.nomeCategoria)
                             && itemAntigo.isGestor == novoItem.isGestor
@@ -67,29 +63,13 @@ public class AssinaturaAdapter
     @Nullable
     private final OnAssinaturaClickListener clickListener;
 
-    @Nullable
-    private final OnItemLongClickListener longClickListener;
-
     public interface OnAssinaturaClickListener {
         void onAssinaturaClick(@NonNull Assinatura assinatura);
-    }
-
-    public interface OnItemLongClickListener {
-        void onItemLongClick(Assinatura assinatura);
     }
 
     public AssinaturaAdapter(@Nullable OnAssinaturaClickListener clickListener) {
         super(DIFF_CALLBACK);
         this.clickListener = clickListener;
-        this.longClickListener = null;
-    }
-
-    public AssinaturaAdapter(@Nullable List<Assinatura> assinaturas,
-                             @Nullable OnItemLongClickListener longClickListener) {
-        super(DIFF_CALLBACK);
-        this.clickListener = null;
-        this.longClickListener = longClickListener;
-        setAssinaturas(assinaturas);
     }
 
     public void atualizarDados(@Nullable List<Assinatura> assinaturas,
@@ -120,16 +100,12 @@ public class AssinaturaAdapter
         submitList(itens);
     }
 
-    public void setAssinaturas(@Nullable List<Assinatura> novasAssinaturas) {
-        atualizarDados(novasAssinaturas, null, null, true, 1);
-    }
-
     @NonNull
     @Override
     public AssinaturaViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ItemAssinaturaBinding binding = ItemAssinaturaBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false);
-        return new AssinaturaViewHolder(binding, clickListener, longClickListener);
+        return new AssinaturaViewHolder(binding, clickListener);
     }
 
     @Override
@@ -140,6 +116,28 @@ public class AssinaturaAdapter
     public static final class ItemAssinatura {
 
         private final Assinatura assinatura;
+
+        private final int id;
+
+        @Nullable
+        private final String nomeServico;
+
+        @Nullable
+        private final String tipoDoUso;
+
+        private final float valorTotal;
+
+        private final float valorOriginal;
+
+        @Nullable
+        private final String moeda;
+
+        @Nullable
+        private final String periodicidade;
+
+        private final long dataProximoVencimento;
+
+        private final boolean status;
 
         @Nullable
         private final String nomeDono;
@@ -157,6 +155,15 @@ public class AssinaturaAdapter
                                boolean isGestor,
                                int moradoresAtivos) {
             this.assinatura = assinatura;
+            this.id = assinatura.getId();
+            this.nomeServico = assinatura.getNomeServico();
+            this.tipoDoUso = assinatura.getTipoDoUso();
+            this.valorTotal = assinatura.getValorTotal();
+            this.valorOriginal = assinatura.getValorOriginal();
+            this.moeda = assinatura.getMoeda();
+            this.periodicidade = assinatura.getPeriodicidade();
+            this.dataProximoVencimento = assinatura.getDataProximoVencimento();
+            this.status = assinatura.isStatus();
             this.nomeDono = nomeDono;
             this.nomeCategoria = nomeCategoria;
             this.isGestor = isGestor;
@@ -175,16 +182,11 @@ public class AssinaturaAdapter
         @Nullable
         private final OnAssinaturaClickListener clickListener;
 
-        @Nullable
-        private final OnItemLongClickListener longClickListener;
-
         AssinaturaViewHolder(@NonNull ItemAssinaturaBinding binding,
-                             @Nullable OnAssinaturaClickListener clickListener,
-                             @Nullable OnItemLongClickListener longClickListener) {
+                             @Nullable OnAssinaturaClickListener clickListener) {
             super(binding.getRoot());
             this.binding = binding;
             this.clickListener = clickListener;
-            this.longClickListener = longClickListener;
         }
 
         void vincular(@NonNull ItemAssinatura item) {
@@ -300,13 +302,6 @@ public class AssinaturaAdapter
                 if (clickListener != null) {
                     clickListener.onAssinaturaClick(assinatura);
                 }
-            });
-            binding.cardAssinatura.setOnLongClickListener(v -> {
-                if (longClickListener != null) {
-                    longClickListener.onItemLongClick(assinatura);
-                    return true;
-                }
-                return false;
             });
         }
     }

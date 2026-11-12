@@ -14,6 +14,9 @@ import com.example.assinafamilia.databinding.ActivityMainBinding;
 import com.example.assinafamilia.model.Usuario;
 import com.example.assinafamilia.util.NetworkUtils;
 import com.example.assinafamilia.util.Resource;
+import com.example.assinafamilia.view.auth.CadastroActivity;
+import com.example.assinafamilia.view.auth.RecuperarSenhaActivity;
+import com.example.assinafamilia.view.main.MainContainerActivity;
 import com.example.assinafamilia.viewmodel.AuthViewModel;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -30,10 +33,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
-
-        if (getIntent() != null && !Intent.ACTION_MAIN.equals(getIntent().getAction())) {
-            authViewModel.sair();
-        }
 
         if (authViewModel.isLogado()) {
             navegarParaPosLogin();
@@ -87,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(binding.getRoot(), R.string.aviso_sem_internet_cadastro, Snackbar.LENGTH_LONG).show();
                 return;
             }
-            abrirAtividadePorNome("com.example.assinafamilia.view.auth.CadastroActivity");
+            startActivity(new Intent(this, CadastroActivity.class));
         });
 
         binding.txtEsqueciSenha.setOnClickListener(v -> {
@@ -95,27 +94,14 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(binding.getRoot(), R.string.aviso_sem_internet_recuperacao, Snackbar.LENGTH_LONG).show();
                 return;
             }
-            abrirAtividadePorNome("com.example.assinafamilia.view.auth.RecuperarSenhaActivity");
+            startActivity(new Intent(this, RecuperarSenhaActivity.class));
         });
     }
 
     private void navegarParaPosLogin() {
-        Class<?> destino;
-        try {
-            destino = Class.forName("com.example.assinafamilia.view.main.MainContainerActivity");
-        } catch (ClassNotFoundException e) {
-            destino = DashboardActivity.class;
-        }
-        startActivity(new Intent(this, destino));
+        Intent intent = new Intent(this, MainContainerActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
         finish();
-    }
-
-    private void abrirAtividadePorNome(String nomeClasse) {
-        try {
-            Class<?> destino = Class.forName(nomeClasse);
-            startActivity(new Intent(this, destino));
-        } catch (ClassNotFoundException e) {
-            Snackbar.make(binding.getRoot(), R.string.aviso_tela_em_breve, Snackbar.LENGTH_SHORT).show();
-        }
     }
 }
