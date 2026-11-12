@@ -26,4 +26,6 @@
     <color name="cor_status_pendente_fundo">#FEF0C7</color>
     <color name="cor_selo_membro">#175CD3</color>
     <color name="cor_selo_membro_fundo">#EFF8FF</color>
+    <color name="cor_azul_claro">#EFF8FF</color>
+    <color name="cor_azul_escuro">#175CD3</color>
 </resources>
