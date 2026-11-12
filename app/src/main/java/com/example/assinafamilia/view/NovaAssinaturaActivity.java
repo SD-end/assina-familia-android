@@ -75,7 +75,7 @@ public class NovaAssinaturaActivity extends AppCompatActivity {
         ViewCompat.setOnApplyWindowInsetsListener(binding.layoutRaizNovaAssinatura,
                 (view, windowInsets) -> {
                     Insets barras = windowInsets.getInsets(
-                            WindowInsetsCompat.Type.systemBars());
+                            WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
                     view.setPadding(barras.left, barras.top, barras.right, barras.bottom);
                     return windowInsets;
                 });

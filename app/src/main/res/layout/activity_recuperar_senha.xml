@@ -129,8 +129,9 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEnviarLink"
             android:layout_width="0dp"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:minHeight="56dp"
             android:text="@string/acao_enviar_link_recuperacao"
             android:textColor="@color/white"
             android:textSize="16sp"

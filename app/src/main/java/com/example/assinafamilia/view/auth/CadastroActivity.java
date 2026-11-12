@@ -6,6 +6,9 @@ import android.util.Patterns;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -28,6 +31,22 @@ public class CadastroActivity extends AppCompatActivity {
 
         binding = ActivityCadastroBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        View raiz = binding.getRoot();
+        int padEsquerda = raiz.getPaddingLeft();
+        int padTopo = raiz.getPaddingTop();
+        int padDireita = raiz.getPaddingRight();
+        int padBase = raiz.getPaddingBottom();
+        ViewCompat.setOnApplyWindowInsetsListener(raiz, (view, windowInsets) -> {
+            Insets barras = windowInsets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
+            view.setPadding(
+                    padEsquerda + barras.left,
+                    padTopo + barras.top,
+                    padDireita + barras.right,
+                    padBase + barras.bottom);
+            return windowInsets;
+        });
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 

@@ -205,8 +205,9 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCriarFamilia"
             android:layout_width="0dp"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:minHeight="56dp"
             android:text="@string/acao_criar_minha_familia"
             android:textColor="@color/white"
             android:textSize="16sp"

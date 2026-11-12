@@ -32,7 +32,7 @@ public class NovoMoradorActivity extends AppCompatActivity {
         ViewCompat.setOnApplyWindowInsetsListener(binding.layoutRaizNovoMorador,
                 (view, windowInsets) -> {
                     Insets barras = windowInsets.getInsets(
-                            WindowInsetsCompat.Type.systemBars());
+                            WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
                     view.setPadding(barras.left, barras.top, barras.right, barras.bottom);
                     return windowInsets;
                 });
