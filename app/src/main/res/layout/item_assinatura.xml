@@ -1,44 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardAssinatura"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="16dp"
-    android:layout_marginBottom="8dp"
-    android:background="#F8F8F8">
+    android:layout_marginBottom="10dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="@color/cor_fundo_cartao"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/cor_borda_sutil"
+    app:strokeWidth="1dp">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:id="@+id/layoutConteudoAssinatura"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="14dp">
 
-        <TextView
-            android:id="@+id/txtNomeServico"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardAvatarAssinatura"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            app:cardBackgroundColor="@color/cor_verde_claro"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+            <TextView
+                android:id="@+id/txtInicialAssinatura"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="@color/cor_verde_escuro"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:id="@+id/layoutInfoAssinatura"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtNomeServico"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/cor_texto_primario"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/layoutSelosAssinatura"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/txtSeloTipoUso"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_status_badge"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtSeloStatusAssinatura"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_status_badge"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txtCategoriaAssinatura"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/cor_texto_secundario"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutValorAssinatura"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/assinatura"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#000000" />
+            android:gravity="end"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/txtTipoUso"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tipo_uso"
-            android:textSize="12sp"
-            android:textColor="#666666" />
+            <TextView
+                android:id="@+id/txtRotuloSuaParte"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rotulo_sua_parte"
+                android:textColor="@color/cor_texto_secundario"
+                android:textSize="11sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/txtValorAssinatura"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/cor_texto_primario"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtVencimentoAssinatura"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/cor_texto_secundario"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/txtValor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:text="@string/valor_assinatura"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#006633" />
-
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

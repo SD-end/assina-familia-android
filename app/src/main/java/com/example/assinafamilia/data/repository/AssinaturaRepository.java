@@ -372,8 +372,6 @@ public class AssinaturaRepository {
                 return;
             }
 
-            cobranca.setStatusPagamento(atual.getStatusPagamento());
-            cobranca.setSincronizado(false);
             WorkScheduler.executarVerificacaoVencimentosImediata(contexto);
 
             if (isFamiliaSomenteLocal(familiaId)) {
@@ -386,7 +384,7 @@ public class AssinaturaRepository {
                     : enviarPagamentoComoMembro(familiaId, atual, assinaturaPai, cobrancasProximoCiclo);
 
             if (sincronizado) {
-                cobranca.setSincronizado(true);
+                atual.setSincronizado(true);
                 resultado.postValue(Resource.sucesso(atual));
             } else {
                 WorkScheduler.enfileirarSincronizacaoQuandoOnline(contexto);

@@ -42,16 +42,16 @@ public class CobrancaAdapter
                 @Override
                 public boolean areItemsTheSame(@NonNull ItemCobranca itemAntigo,
                                                @NonNull ItemCobranca novoItem) {
-                    return itemAntigo.cobranca.getId() == novoItem.cobranca.getId();
+                    return itemAntigo.id == novoItem.id;
                 }
 
                 @Override
                 public boolean areContentsTheSame(@NonNull ItemCobranca itemAntigo,
                                                   @NonNull ItemCobranca novoItem) {
-                    return itemAntigo.cobranca.getValorCobrado() == novoItem.cobranca.getValorCobrado()
-                            && itemAntigo.cobranca.getDataVencimento() == novoItem.cobranca.getDataVencimento()
-                            && TextUtils.equals(itemAntigo.cobranca.getStatusPagamento(),
-                            novoItem.cobranca.getStatusPagamento())
+                    return Float.compare(itemAntigo.valorCobrado, novoItem.valorCobrado) == 0
+                            && itemAntigo.dataVencimento == novoItem.dataVencimento
+                            && TextUtils.equals(itemAntigo.statusPagamento,
+                            novoItem.statusPagamento)
                             && TextUtils.equals(itemAntigo.nomeServico, novoItem.nomeServico)
                             && TextUtils.equals(itemAntigo.tipoDoUso, novoItem.tipoDoUso)
                             && itemAntigo.isGestor == novoItem.isGestor
@@ -149,6 +149,15 @@ public class CobrancaAdapter
 
         private final Cobranca cobranca;
 
+        private final int id;
+
+        private final float valorCobrado;
+
+        private final long dataVencimento;
+
+        @Nullable
+        private final String statusPagamento;
+
         @Nullable
         private final String nomeServico;
 
@@ -168,6 +177,10 @@ public class CobrancaAdapter
                              int moradoresAtivos,
                              boolean modoHistorico) {
             this.cobranca = cobranca;
+            this.id = cobranca.getId();
+            this.valorCobrado = cobranca.getValorCobrado();
+            this.dataVencimento = cobranca.getDataVencimento();
+            this.statusPagamento = cobranca.getStatusPagamento();
             this.nomeServico = nomeServico;
             this.tipoDoUso = tipoDoUso;
             this.isGestor = isGestor;
@@ -200,7 +213,7 @@ public class CobrancaAdapter
 
             if (item.modoHistorico) {
                 SimpleDateFormat formatoMesAno = new SimpleDateFormat("MMMM yyyy", LOCALE_PT_BR);
-                String mesAno = formatoMesAno.format(new Date(cobranca.getDataVencimento()));
+                String mesAno = formatoMesAno.format(new Date(item.dataVencimento));
                 String titulo = mesAno.isEmpty()
                         ? mesAno
                         : mesAno.substring(0, 1).toUpperCase(LOCALE_PT_BR) + mesAno.substring(1);
@@ -209,14 +222,14 @@ public class CobrancaAdapter
                 SimpleDateFormat formatoDiaMes = new SimpleDateFormat("dd/MM", LOCALE_PT_BR);
                 binding.txtSubtituloCobranca.setText(contexto.getString(
                         R.string.formato_cobrado_em,
-                        formatoDiaMes.format(new Date(cobranca.getDataVencimento()))));
+                        formatoDiaMes.format(new Date(item.dataVencimento))));
             } else {
                 String nomeExibicao = !TextUtils.isEmpty(item.nomeServico)
                         ? item.nomeServico
                         : contexto.getString(R.string.titulo_assinatura_generica);
                 binding.txtTituloCobranca.setText(nomeExibicao);
 
-                long diffDias = calcularDiferencaDias(cobranca.getDataVencimento());
+                long diffDias = calcularDiferencaDias(item.dataVencimento);
                 String subtitulo;
                 if (diffDias == 0) {
                     subtitulo = contexto.getString(R.string.vence_hoje);
@@ -228,7 +241,7 @@ public class CobrancaAdapter
                     SimpleDateFormat formatoDataCompleta =
                             new SimpleDateFormat("dd/MM/yyyy", LOCALE_PT_BR);
                     subtitulo = contexto.getString(R.string.formato_vence_em_data,
-                            formatoDataCompleta.format(new Date(cobranca.getDataVencimento())));
+                            formatoDataCompleta.format(new Date(item.dataVencimento)));
                 } else if (diffDias == -1) {
                     subtitulo = contexto.getString(R.string.venceu_ontem);
                 } else {
@@ -239,7 +252,7 @@ public class CobrancaAdapter
             }
 
             if (!item.isGestor && DomainConstants.USO_GERAL.equalsIgnoreCase(item.tipoDoUso)) {
-                float minhaParte = cobranca.getValorCobrado()
+                float minhaParte = item.valorCobrado
                         / Math.max(1, item.moradoresAtivos);
                 binding.txtValorCobranca.setText(String.format(LOCALE_PT_BR,
                         contexto.getString(R.string.formato_sua_parte_valor), minhaParte));
@@ -247,11 +260,11 @@ public class CobrancaAdapter
             } else {
                 binding.txtValorCobranca.setText(String.format(LOCALE_PT_BR,
                         contexto.getString(R.string.formato_valor_reais),
-                        cobranca.getValorCobrado()));
+                        item.valorCobrado));
                 binding.txtValorCobranca.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
             }
 
-            String status = cobranca.getStatusPagamento();
+            String status = item.statusPagamento;
             int textoStatus;
             int corTexto;
             int corFundo;

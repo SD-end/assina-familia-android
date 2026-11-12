@@ -1,73 +1,530 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layoutRaizNovaAssinatura"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="32dp">
+    android:background="@color/cor_fundo_cartao">
 
-    <TextView
-        android:id="@+id/textNovaAssinatura"
-        android:layout_width="wrap_content"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/barraSuperiorNovaAssinatura"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationContentDescription="@string/desc_voltar"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:navigationIconTint="@color/cor_texto_primario"
+        app:title="@string/titulo_nova_assinatura"
+        app:titleCentered="true"
+        app:titleTextColor="@color/cor_texto_primario" />
+
+    <ScrollView
+        android:id="@+id/scrollFormularioAssinatura"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@id/layoutRodapeSalvar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/barraSuperiorNovaAssinatura">
+
+        <LinearLayout
+            android:id="@+id/layoutConteudoFormulario"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="20dp">
+
+            <TextView
+                android:id="@+id/txtRotuloNomeServico"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rotulo_nome_servico"
+                android:textColor="@color/cor_texto_primario"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilNomeServico"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeColor="@color/cor_borda_sutil"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtNomeServico"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/dica_nome_servico_placeholder"
+                    android:inputType="textCapWords"
+                    android:maxLength="120"
+                    android:maxLines="1"
+                    android:textColor="@color/cor_texto_primario"
+                    android:textColorHint="@color/cor_texto_apoio" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutLinhaMoedaValor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="0.42"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/txtRotuloMoeda"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dica_moeda"
+                        android:textColor="@color/cor_texto_primario"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilMoeda"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/cor_borda_sutil"
+                        app:hintEnabled="false">
+
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                            android:id="@+id/dropdownMoeda"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            android:textColor="@color/cor_texto_primario"
+                            android:textSize="14sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.58"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/txtRotuloValor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dica_valor_original"
+                        android:textColor="@color/cor_texto_primario"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilValorOriginal"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/cor_borda_sutil"
+                        app:hintEnabled="false"
+                        app:prefixText="@string/prefixo_brl">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtValorOriginal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:digits="0123456789.,"
+                            android:hint="@string/dica_valor_placeholder"
+                            android:inputType="numberDecimal"
+                            android:maxLines="1"
+                            android:textColor="@color/cor_texto_primario"
+                            android:textColorHint="@color/cor_texto_apoio" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txtValorConvertidoBrl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/cor_verde_escuro"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardAvisoFallbackCambio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/cor_status_pendente_fundo"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/cor_status_pendente"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="@string/aviso_fallback_cambio"
+                        android:src="@android:drawable/ic_dialog_alert"
+                        app:tint="@color/cor_status_pendente" />
+
+                    <TextView
+                        android:id="@+id/txtAvisoFallbackCambio"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:text="@string/aviso_fallback_cambio"
+                        android:textColor="@color/cor_status_pendente"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/txtRotuloCategoria"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/dica_categoria"
+                android:textColor="@color/cor_texto_primario"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilCategoria"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeColor="@color/cor_borda_sutil"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/dropdownCategoria"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/dica_selecione"
+                    android:inputType="none"
+                    android:textColor="@color/cor_texto_primario"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/txtRotuloPeriodicidade"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/dica_periodicidade"
+                android:textColor="@color/cor_texto_primario"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilPeriodicidade"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeColor="@color/cor_borda_sutil"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/dropdownPeriodicidade"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:textColor="@color/cor_texto_primario"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/txtRotuloTipoUso"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/rotulo_tipo_uso"
+                android:textColor="@color/cor_texto_primario"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/layoutCardsTipoUso"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardUsoCasa"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/cor_fundo_cartao"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/cor_borda_sutil"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardIconeUsoCasa"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            app:cardBackgroundColor="@color/cor_verde_claro"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp">
+
+                            <ImageView
+                                android:id="@+id/imgIconeUsoCasa"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="@string/opcao_uso_casa"
+                                android:src="@android:drawable/ic_menu_today"
+                                app:tint="@color/cor_verde_escuro" />
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <TextView
+                            android:id="@+id/txtTituloUsoCasa"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:gravity="center"
+                            android:text="@string/opcao_uso_casa"
+                            android:textColor="@color/cor_texto_primario"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/txtDescUsoCasa"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:gravity="center"
+                            android:text="@string/desc_uso_casa"
+                            android:textColor="@color/cor_texto_secundario"
+                            android:textSize="11sp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardUsoIndividual"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/cor_fundo_cartao"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/cor_borda_sutil"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardIconeUsoIndividual"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            app:cardBackgroundColor="@color/cor_selo_membro_fundo"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp">
+
+                            <ImageView
+                                android:id="@+id/imgIconeUsoIndividual"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="@string/opcao_uso_individual"
+                                android:src="@android:drawable/ic_menu_myplaces"
+                                app:tint="@color/cor_selo_membro" />
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <TextView
+                            android:id="@+id/txtTituloUsoIndividual"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:gravity="center"
+                            android:text="@string/opcao_uso_individual"
+                            android:textColor="@color/cor_texto_primario"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/txtDescUsoIndividual"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:gravity="center"
+                            android:text="@string/desc_uso_individual"
+                            android:textColor="@color/cor_texto_secundario"
+                            android:textSize="11sp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txtRotuloDataVencimento"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/rotulo_primeiro_vencimento"
+                android:textColor="@color/cor_texto_primario"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDataVencimento"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeColor="@color/cor_borda_sutil"
+                app:endIconContentDescription="@string/dica_data_vencimento"
+                app:endIconDrawable="@android:drawable/ic_menu_my_calendar"
+                app:endIconMode="custom"
+                app:endIconTint="@color/cor_texto_secundario"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtDataVencimento"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:cursorVisible="false"
+                    android:focusable="false"
+                    android:hint="@string/dica_data_placeholder"
+                    android:inputType="none"
+                    android:textColor="@color/cor_texto_primario"
+                    android:textColorHint="@color/cor_texto_apoio" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/swAssinaturaAtiva"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:checked="true"
+                android:text="@string/rotulo_assinatura_ativa"
+                android:textColor="@color/cor_texto_primario"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/layoutRodapeSalvar"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="@string/titulo_dashboard"
-        android:textSize="24sp"
-        android:textStyle="bold"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
 
-    <EditText
-        android:id="@+id/editNomeServico"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="32dp"
-        android:background="#F0F0F0"
-        android:hint="@string/hint_nome_servico"
-        android:inputType="text"
-        android:padding="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textNovaAssinatura" />
+        <ProgressBar
+            android:id="@+id/pbSalvandoAssinatura"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone" />
 
-    <EditText
-        android:id="@+id/editValorTotal"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="16dp"
-        android:background="#F0F0F0"
-        android:hint="@string/hint_valor_total"
-        android:inputType="numberDecimal"
-        android:padding="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editNomeServico" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSalvarAssinatura"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/btnsalvar"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@color/cor_verde_escuro"
+            app:cornerRadius="12dp" />
 
-    <EditText
-        android:id="@+id/editTipoUso"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="16dp"
-        android:background="#F0F0F0"
-        android:hint="@string/hint_tipo_uso"
-        android:inputType="text"
-        android:padding="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editValorTotal" />
-
-    <Button
-        android:id="@+id/btnSalvar"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="32dp"
-        android:backgroundTint="#006633"
-        android:text="@string/btnsalvar"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTipoUso" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

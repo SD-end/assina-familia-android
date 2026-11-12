@@ -15,6 +15,7 @@ import com.example.assinafamilia.util.DomainConstants;
 import com.example.assinafamilia.util.NotificationHelper;
 import com.example.assinafamilia.util.SessionManager;
 
+import java.util.Calendar;
 import java.util.List;
 
 public class VencimentoWorker extends Worker {
@@ -40,10 +41,19 @@ public class VencimentoWorker extends Worker {
             AssinaturaDao assinaturaDao = banco.assinaturaDao();
 
             long agora = System.currentTimeMillis();
-            cobrancaDao.atualizarCobrancasVencidas(agora);
+            Calendar inicioDia = Calendar.getInstance();
+            inicioDia.setTimeInMillis(agora);
+            inicioDia.set(Calendar.HOUR_OF_DAY, 0);
+            inicioDia.set(Calendar.MINUTE, 0);
+            inicioDia.set(Calendar.SECOND, 0);
+            inicioDia.set(Calendar.MILLISECOND, 0);
+            long inicioDeHoje = inicioDia.getTimeInMillis();
+
+            cobrancaDao.atualizarCobrancasVencidas(inicioDeHoje);
 
             List<Cobranca> cobrancasIminentes =
-                    cobrancaDao.buscarCobrancasIminentesNaoNotificadas(agora, agora + JANELA_24H_MILLIS);
+                    cobrancaDao.buscarCobrancasIminentesNaoNotificadas(
+                            inicioDeHoje, agora + JANELA_24H_MILLIS);
             if (cobrancasIminentes == null || cobrancasIminentes.isEmpty()) {
                 return Result.success();
             }
