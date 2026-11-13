@@ -25,11 +25,11 @@
 
             <ImageView
                 android:id="@+id/imgLogo"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:contentDescription="@string/desc_logo_app"
-                android:src="@drawable/assinalogo" />
+                android:src="@drawable/logo" />
 
         </com.google.android.material.card.MaterialCardView>
 
