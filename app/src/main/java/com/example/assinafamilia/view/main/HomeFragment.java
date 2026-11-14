@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.assinafamilia.R;
+import com.example.assinafamilia.databinding.DialogHistoricoNotificacoesBinding;
 import com.example.assinafamilia.databinding.FragmentHomeBinding;
 import com.example.assinafamilia.model.Assinatura;
 import com.example.assinafamilia.model.Cobranca;
@@ -23,15 +25,18 @@ import com.example.assinafamilia.model.ResumoDashboard;
 import com.example.assinafamilia.util.Resource;
 import com.example.assinafamilia.view.adapter.CobrancaAdapter;
 import com.example.assinafamilia.view.adapter.MoradorResumoAdapter;
+import com.example.assinafamilia.view.adapter.NotificacaoHistoricoAdapter;
 import com.example.assinafamilia.viewmodel.DashboardViewModel;
 import com.example.assinafamilia.worker.WorkScheduler;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class HomeFragment extends Fragment {
 
@@ -44,6 +49,17 @@ public class HomeFragment extends Fragment {
     private final Map<Integer, Assinatura> mapaAssinaturas = new HashMap<>();
     private ResumoDashboard ultimoResumo;
     private List<Cobranca> ultimasCobrancas;
+    private List<Cobranca> historicoNotificacoes;
+    private final Set<Integer> idsNaoLidasSessaoModal = new HashSet<>();
+
+    @Nullable
+    private AlertDialog dialogNotificacoes;
+
+    @Nullable
+    private DialogHistoricoNotificacoesBinding bindingDialogNotificacoes;
+
+    @Nullable
+    private NotificacaoHistoricoAdapter notificacaoHistoricoAdapter;
 
     @Nullable
     @Override
@@ -68,8 +84,14 @@ public class HomeFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
+        if (dialogNotificacoes != null && dialogNotificacoes.isShowing()) {
+            dialogNotificacoes.dismiss();
+        }
+        dialogNotificacoes = null;
+        bindingDialogNotificacoes = null;
+        notificacaoHistoricoAdapter = null;
         binding = null;
+        super.onDestroyView();
     }
 
     private void configurarCabecalho() {
@@ -167,11 +189,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void configurarAcoes() {
-        binding.btnNotificacoes.setOnClickListener(v -> {
-            WorkScheduler.executarVerificacaoVencimentosImediata(requireContext());
-            Snackbar.make(binding.getRoot(),
-                    R.string.aviso_verificacao_vencimentos, Snackbar.LENGTH_SHORT).show();
-        });
+        binding.btnNotificacoes.setOnClickListener(v -> abrirModalHistoricoNotificacoes());
 
         binding.cardIndividuaisMembro.setOnClickListener(v -> navegarParaAssinaturas());
         binding.cardParteCasaMembro.setOnClickListener(v -> navegarParaAssinaturas());
@@ -192,9 +210,6 @@ public class HomeFragment extends Fragment {
                 return;
             }
             ultimoResumo = resumo;
-
-            binding.cardAlertaInadimplencia.setVisibility(
-                    resumo.isPossuiInadimplencia() ? View.VISIBLE : View.GONE);
 
             if (dashboardViewModel.isGestor()) {
                 binding.txtTituloCardPrincipal.setText(R.string.titulo_gasto_familia);
@@ -225,6 +240,7 @@ public class HomeFragment extends Fragment {
             }
 
             atualizarListaCobrancas();
+            atualizarConteudoModalNotificacoes();
         });
 
         dashboardViewModel.observarAssinaturasVisiveis().observe(getViewLifecycleOwner(), assinaturas -> {
@@ -240,6 +256,7 @@ public class HomeFragment extends Fragment {
                 }
             }
             atualizarListaCobrancas();
+            atualizarConteudoModalNotificacoes();
         });
 
         dashboardViewModel.observarProximasCobrancasVisiveis().observe(getViewLifecycleOwner(),
@@ -249,6 +266,40 @@ public class HomeFragment extends Fragment {
                     }
                     ultimasCobrancas = cobrancas;
                     atualizarListaCobrancas();
+                });
+
+        dashboardViewModel.observarHistoricoNotificacoesVisiveis().observe(
+                getViewLifecycleOwner(), cobrancas -> {
+                    historicoNotificacoes = cobrancas;
+                    atualizarConteudoModalNotificacoes();
+                });
+
+        dashboardViewModel.observarQuantidadeNotificacoesNaoLidas().observe(
+                getViewLifecycleOwner(), quantidade -> {
+                    if (binding == null) {
+                        return;
+                    }
+                    if (quantidade != null && quantidade > 0) {
+                        binding.txtBadgeNotificacoes.setVisibility(View.VISIBLE);
+                        binding.txtBadgeNotificacoes.setText(
+                                quantidade > 99 ? "99+" : String.valueOf(quantidade));
+                    } else {
+                        binding.txtBadgeNotificacoes.setVisibility(View.GONE);
+                    }
+                });
+
+        dashboardViewModel.observarQuantidadeCobrancasAtrasadas().observe(
+                getViewLifecycleOwner(), atrasadas -> {
+                    if (binding == null) {
+                        return;
+                    }
+                    if (atrasadas != null && atrasadas > 0) {
+                        binding.txtBadgeAtrasadas.setVisibility(View.VISIBLE);
+                        binding.txtBadgeAtrasadas.setText(
+                                atrasadas > 99 ? "99+" : String.valueOf(atrasadas));
+                    } else {
+                        binding.txtBadgeAtrasadas.setVisibility(View.GONE);
+                    }
                 });
     }
 
@@ -282,6 +333,112 @@ public class HomeFragment extends Fragment {
                     dashboardViewModel.isGestor(),
                     moradoresAtivos,
                     false);
+        }
+    }
+
+    private void abrirModalHistoricoNotificacoes() {
+        if (binding == null) {
+            return;
+        }
+        if (dialogNotificacoes != null && dialogNotificacoes.isShowing()) {
+            return;
+        }
+
+        WorkScheduler.executarVerificacaoVencimentosImediata(requireContext());
+
+        idsNaoLidasSessaoModal.clear();
+        if (historicoNotificacoes != null) {
+            for (Cobranca cobranca : historicoNotificacoes) {
+                if (cobranca != null && !dashboardViewModel.isNotificacaoVisualizada(cobranca)) {
+                    idsNaoLidasSessaoModal.add(cobranca.getId());
+                }
+            }
+        }
+        dashboardViewModel.marcarNotificacoesComoVisualizadas();
+
+        bindingDialogNotificacoes = DialogHistoricoNotificacoesBinding.inflate(getLayoutInflater());
+        notificacaoHistoricoAdapter = new NotificacaoHistoricoAdapter(cobranca -> {
+            if (dialogNotificacoes != null) {
+                dialogNotificacoes.dismiss();
+            }
+            try {
+                Class<?> destino = Class.forName(
+                        "com.example.assinafamilia.view.assinatura.DetalheAssinaturaActivity");
+                Intent intent = new Intent(requireContext(), destino);
+                intent.putExtra("EXTRA_ASSINATURA_ID", cobranca.getAssinaturaId());
+                startActivity(intent);
+            } catch (ClassNotFoundException e) {
+                if (binding != null) {
+                    Snackbar.make(binding.getRoot(),
+                            R.string.aviso_tela_em_breve, Snackbar.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        bindingDialogNotificacoes.rvHistoricoNotificacoes.setLayoutManager(
+                new LinearLayoutManager(requireContext()));
+        bindingDialogNotificacoes.rvHistoricoNotificacoes.setAdapter(notificacaoHistoricoAdapter);
+
+        bindingDialogNotificacoes.btnVerificarVencimentosDialog.setOnClickListener(v -> {
+            WorkScheduler.executarVerificacaoVencimentosImediata(requireContext());
+            if (binding != null) {
+                Snackbar.make(binding.getRoot(),
+                        R.string.aviso_verificacao_vencimentos, Snackbar.LENGTH_SHORT).show();
+            }
+        });
+        bindingDialogNotificacoes.btnFecharDialogNotificacoes.setOnClickListener(v -> {
+            if (dialogNotificacoes != null) {
+                dialogNotificacoes.dismiss();
+            }
+        });
+
+        atualizarConteudoModalNotificacoes();
+
+        dialogNotificacoes = new MaterialAlertDialogBuilder(requireContext())
+                .setView(bindingDialogNotificacoes.getRoot())
+                .create();
+        dialogNotificacoes.setOnDismissListener(dialog -> {
+            bindingDialogNotificacoes = null;
+            notificacaoHistoricoAdapter = null;
+            dialogNotificacoes = null;
+            idsNaoLidasSessaoModal.clear();
+        });
+        dialogNotificacoes.show();
+    }
+
+    private void atualizarConteudoModalNotificacoes() {
+        if (bindingDialogNotificacoes == null || notificacaoHistoricoAdapter == null) {
+            return;
+        }
+
+        int total = historicoNotificacoes != null ? historicoNotificacoes.size() : 0;
+        bindingDialogNotificacoes.txtContadorDialogNotificacoes.setText(total == 1
+                ? getString(R.string.formato_contador_notificacao_singular)
+                : getString(R.string.formato_contador_notificacoes, total));
+
+        if (total == 0) {
+            bindingDialogNotificacoes.rvHistoricoNotificacoes.setVisibility(View.GONE);
+            bindingDialogNotificacoes.incluirEstadoVazioNotificacoes.getRoot()
+                    .setVisibility(View.VISIBLE);
+            bindingDialogNotificacoes.incluirEstadoVazioNotificacoes.txtTituloVazio.setText(
+                    R.string.titulo_sem_notificacoes);
+            bindingDialogNotificacoes.incluirEstadoVazioNotificacoes.txtDescricaoVazio.setText(
+                    R.string.desc_sem_notificacoes);
+            bindingDialogNotificacoes.incluirEstadoVazioNotificacoes.btnAcaoVazio
+                    .setVisibility(View.GONE);
+        } else {
+            bindingDialogNotificacoes.rvHistoricoNotificacoes.setVisibility(View.VISIBLE);
+            bindingDialogNotificacoes.incluirEstadoVazioNotificacoes.getRoot()
+                    .setVisibility(View.GONE);
+            int moradoresAtivos = ultimoResumo != null
+                    ? Math.max(1, ultimoResumo.getQuantidadeMoradoresAtivos())
+                    : 1;
+            notificacaoHistoricoAdapter.atualizarDados(
+                    historicoNotificacoes,
+                    mapaAssinaturas,
+                    idsNaoLidasSessaoModal,
+                    dashboardViewModel.isGestor(),
+                    moradoresAtivos);
         }
     }
 

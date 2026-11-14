@@ -31,9 +31,22 @@ public interface CobrancaDao {
             + DomainConstants.COB_PAGA + "' ORDER BY dataVencimento ASC")
     LiveData<List<Cobranca>> listarProximasCobrancasFamilia(String familiaId);
 
-    @Query("SELECT * FROM cobrancas WHERE statusPagamento = '" + DomainConstants.COB_PENDENTE
-            + "' AND dataVencimento BETWEEN :agora AND :limite24h AND notificado24h = 0")
+    @Query("SELECT * FROM cobrancas WHERE notificado24h = 0 AND ((statusPagamento = '"
+            + DomainConstants.COB_PENDENTE
+            + "' AND dataVencimento BETWEEN :agora AND :limite24h) OR statusPagamento = '"
+            + DomainConstants.COB_ATRASADA + "') ORDER BY dataVencimento ASC")
     List<Cobranca> buscarCobrancasIminentesNaoNotificadas(long agora, long limite24h);
+
+    @Query("SELECT * FROM cobrancas WHERE assinaturaId = :assinaturaId AND statusPagamento != '"
+            + DomainConstants.COB_PAGA + "' ORDER BY dataVencimento DESC")
+    List<Cobranca> buscarCobrancasAbertasPorAssinaturaSync(int assinaturaId);
+
+    @Query("SELECT * FROM cobrancas WHERE familiaId = :familiaId AND (notificado24h = 1 OR statusPagamento = '"
+            + DomainConstants.COB_PAGA + "' OR statusPagamento = '"
+            + DomainConstants.COB_ATRASADA + "' OR (statusPagamento = '"
+            + DomainConstants.COB_PENDENTE
+            + "' AND dataVencimento <= :limiteAlerta)) ORDER BY dataVencimento DESC, id DESC")
+    LiveData<List<Cobranca>> listarHistoricoNotificacoesFamilia(String familiaId, long limiteAlerta);
 
     @Query("UPDATE cobrancas SET notificado24h = 1 WHERE id = :id")
     void marcarComoNotificado(int id);

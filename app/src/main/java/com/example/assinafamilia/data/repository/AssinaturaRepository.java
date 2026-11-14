@@ -95,6 +95,12 @@ public class AssinaturaRepository {
     }
 
     @NonNull
+    public LiveData<List<Cobranca>> listarHistoricoNotificacoesFamilia(@NonNull String familiaId,
+                                                                       long limiteAlerta) {
+        return cobrancaDao.listarHistoricoNotificacoesFamilia(familiaId, limiteAlerta);
+    }
+
+    @NonNull
     public LiveData<Resource<Assinatura>> salvarAssinatura(@NonNull Assinatura assinatura) {
         MutableLiveData<Resource<Assinatura>> resultado =
                 new MutableLiveData<>(Resource.carregando(null));
@@ -161,6 +167,48 @@ public class AssinaturaRepository {
                         cobrancasCriadas.add(primeiraCobranca);
                     } else {
                         assinaturaDao.atualizar(assinatura);
+                        List<Cobranca> abertas =
+                                cobrancaDao.buscarCobrancasAbertasPorAssinaturaSync(assinatura.getId());
+                        Calendar inicioDia = Calendar.getInstance();
+                        inicioDia.set(Calendar.HOUR_OF_DAY, 0);
+                        inicioDia.set(Calendar.MINUTE, 0);
+                        inicioDia.set(Calendar.SECOND, 0);
+                        inicioDia.set(Calendar.MILLISECOND, 0);
+                        long inicioDeHoje = inicioDia.getTimeInMillis();
+                        String statusEsperado =
+                                assinatura.getDataProximoVencimento() < inicioDeHoje
+                                        ? DomainConstants.COB_ATRASADA
+                                        : DomainConstants.COB_PENDENTE;
+                        if (abertas != null && !abertas.isEmpty()) {
+                            Cobranca cobrancaAberta = abertas.get(0);
+                            boolean vencimentoMudou = cobrancaAberta.getDataVencimento()
+                                    != assinatura.getDataProximoVencimento();
+                            boolean statusMudou = !statusEsperado.equals(
+                                    cobrancaAberta.getStatusPagamento());
+                            if (vencimentoMudou || statusMudou) {
+                                cobrancaAberta.setNotificado24h(false);
+                            }
+                            cobrancaAberta.setDataVencimento(assinatura.getDataProximoVencimento());
+                            cobrancaAberta.setValorCobrado(assinatura.getValorTotal());
+                            cobrancaAberta.setStatusPagamento(statusEsperado);
+                            cobrancaAberta.setFamiliaId(familiaId);
+                            if (TextUtils.isEmpty(cobrancaAberta.getFirestoreId())) {
+                                cobrancaAberta.setFirestoreId(gerarIdRemoto());
+                            }
+                            cobrancaAberta.setSincronizado(false);
+                            cobrancaDao.atualizar(cobrancaAberta);
+                            cobrancasCriadas.add(cobrancaAberta);
+                        } else if (assinatura.isStatus()) {
+                            Cobranca novaCobranca = new Cobranca(
+                                    assinatura.getId(),
+                                    assinatura.getDataProximoVencimento(),
+                                    assinatura.getValorTotal(),
+                                    gerarIdRemoto(),
+                                    familiaId);
+                            novaCobranca.setStatusPagamento(statusEsperado);
+                            novaCobranca.setId((int) cobrancaDao.inserir(novaCobranca));
+                            cobrancasCriadas.add(novaCobranca);
+                        }
                     }
                 });
             } catch (Exception excecao) {
@@ -273,7 +321,7 @@ public class AssinaturaRepository {
 
             atual.setFamiliaId(familiaId);
             atual.setStatus(false);
-            if (enviarAssinatura(familiaId, atual)) {
+            if (excluirAssinaturaRemota(familiaId, atual)) {
                 assinaturaDao.deletar(atual);
                 resultado.postValue(Resource.sucesso(true));
                 return;
@@ -434,6 +482,22 @@ public class AssinaturaRepository {
         try {
             aguardar(firestoreSource.salvarAssinatura(familiaId, assinatura, donoUid,
                     resolverCategoriaFirestoreId(assinatura.getCategoriaId())));
+            return true;
+        } catch (Exception excecao) {
+            return false;
+        }
+    }
+
+    private boolean excluirAssinaturaRemota(@NonNull String familiaId,
+                                            @NonNull Assinatura assinatura) {
+        if (!podeSincronizarComNuvem(familiaId)) {
+            return false;
+        }
+        try {
+            aguardar(firestoreSource.excluirAssinatura(
+                    familiaId,
+                    assinatura.getFirestoreId(),
+                    sessionManager.isGestor()));
             return true;
         } catch (Exception excecao) {
             return false;

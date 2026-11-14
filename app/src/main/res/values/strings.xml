@@ -277,4 +277,18 @@
     <string name="erro_nova_senha_curta">A nova senha deve ter no mínimo 6 caracteres.</string>
     <string name="erro_confirmacao_nova_senha_diferente">A confirmação da nova senha não coincide.</string>
     <string name="sucesso_dados_atualizados">Seus dados foram atualizados com sucesso!</string>
+    <string name="titulo_historico_notificacoes">Notificações</string>
+    <string name="subtitulo_historico_notificacoes">Histórico de alertas e vencimentos em ordem cronológica</string>
+    <string name="formato_contador_notificacoes">%1$d alertas</string>
+    <string name="formato_contador_notificacao_singular">1 alerta</string>
+    <string name="titulo_sem_notificacoes">Nenhuma notificação até o momento</string>
+    <string name="desc_sem_notificacoes">Quando uma assinatura vencer hoje, amanhã ou entrar em atraso, ela aparecerá aqui.</string>
+    <string name="acao_verificar_vencimentos">Verificar agora</string>
+    <string name="acao_fechar">Fechar</string>
+    <string name="notificacao_titulo_atrasada">Assinatura em atraso</string>
+    <string name="notificacao_titulo_vence_hoje">Vence hoje</string>
+    <string name="notificacao_titulo_vence_amanha">Vence amanhã</string>
+    <string name="notificacao_titulo_lembrete_enviado">Lembrete enviado</string>
+    <string name="formato_notificacao_resumo">%1$s • %2$s</string>
+    <string name="selo_novo_alerta">Nova</string>
 </resources>

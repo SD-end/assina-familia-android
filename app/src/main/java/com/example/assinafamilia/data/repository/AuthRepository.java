@@ -32,9 +32,11 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -654,15 +656,12 @@ public class AuthRepository {
 
             int idLocal;
             if (idExistente > 0) {
-                Assinatura existente = assinaturaDao.buscarPorIdSync(idExistente);
-                if (existente != null && existente.isSincronizado()) {
-                    remota.setId(idExistente);
-                    remota.setFamiliaId(familiaId);
-                    remota.setDonoId(donoId);
-                    remota.setCategoriaId(categoriaId);
-                    remota.setSincronizado(true);
-                    assinaturaDao.atualizar(remota);
-                }
+                remota.setId(idExistente);
+                remota.setFamiliaId(familiaId);
+                remota.setDonoId(donoId);
+                remota.setCategoriaId(categoriaId);
+                remota.setSincronizado(true);
+                assinaturaDao.atualizar(remota);
                 idLocal = idExistente;
             } else {
                 remota.setFamiliaId(familiaId);
@@ -677,6 +676,25 @@ public class AuthRepository {
             }
         }
 
+        List<Integer> idsParaRemover = new ArrayList<>();
+        try (Cursor cursor = banco.query(
+                "SELECT id, firestoreId FROM tabela_assinaturas WHERE familiaId = ? AND sincronizado = 1",
+                new Object[]{familiaId})) {
+            while (cursor.moveToNext()) {
+                int idLocal = cursor.getInt(0);
+                String firestoreId = cursor.isNull(1) ? null : cursor.getString(1);
+                if (!mapaAssinaturas.containsKey(firestoreId)) {
+                    idsParaRemover.add(idLocal);
+                }
+            }
+        }
+        for (Integer idLocal : idsParaRemover) {
+            Assinatura orfa = assinaturaDao.buscarPorIdSync(idLocal);
+            if (orfa != null) {
+                assinaturaDao.deletar(orfa);
+            }
+        }
+
         return mapaAssinaturas;
     }
 
@@ -684,8 +702,12 @@ public class AuthRepository {
             @NonNull String familiaId,
             @NonNull List<FirestoreSource.CobrancaRemota> cobrancasRemotas,
             @NonNull Map<String, Integer> mapaAssinaturas) {
+        Set<String> idsCobrancasRemotas = new HashSet<>();
         for (FirestoreSource.CobrancaRemota item : cobrancasRemotas) {
             Cobranca remota = item.getCobranca();
+            if (!TextUtils.isEmpty(remota.getFirestoreId())) {
+                idsCobrancasRemotas.add(remota.getFirestoreId());
+            }
             int assinaturaId = resolverAssinaturaIdLocal(
                     item.getAssinaturaFirestoreId(), mapaAssinaturas);
             if (assinaturaId <= 0) {
@@ -717,6 +739,23 @@ public class AuthRepository {
                 remota.setSincronizado(true);
                 cobrancaDao.inserir(remota);
             }
+        }
+
+        List<Integer> idsParaRemover = new ArrayList<>();
+        try (Cursor cursor = banco.query(
+                "SELECT id, firestoreId FROM cobrancas WHERE familiaId = ? AND sincronizado = 1",
+                new Object[]{familiaId})) {
+            while (cursor.moveToNext()) {
+                int idLocal = cursor.getInt(0);
+                String firestoreId = cursor.isNull(1) ? null : cursor.getString(1);
+                if (TextUtils.isEmpty(firestoreId) || !idsCobrancasRemotas.contains(firestoreId)) {
+                    idsParaRemover.add(idLocal);
+                }
+            }
+        }
+        for (Integer idLocal : idsParaRemover) {
+            banco.getOpenHelper().getWritableDatabase()
+                    .execSQL("DELETE FROM cobrancas WHERE id = ?", new Object[]{idLocal});
         }
     }
 

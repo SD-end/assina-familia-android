@@ -18,6 +18,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
@@ -31,12 +32,18 @@ import com.example.assinafamilia.util.NetworkUtils;
 import com.example.assinafamilia.util.NotificationHelper;
 import com.example.assinafamilia.viewmodel.AuthViewModel;
 import com.example.assinafamilia.worker.WorkScheduler;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class MainContainerActivity extends AppCompatActivity {
 
     private ActivityMainContainerBinding binding;
     private AuthViewModel authViewModel;
     private ConnectivityManager.NetworkCallback callbackRede;
+
+    @Nullable
+    private AlertDialog dialogModoOffline;
+
+    private boolean avisoOfflineExibidoNaSessao = false;
 
     private final ActivityResultLauncher<String> solicitacaoPermissaoNotificacao =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), concedida -> {
@@ -75,16 +82,6 @@ public class MainContainerActivity extends AppCompatActivity {
 
         WorkScheduler.agendarVerificacaoVencimentos(this);
         WorkScheduler.executarVerificacaoVencimentosImediata(this);
-
-        if (NetworkUtils.temConexaoInternet(this)) {
-            WorkScheduler.enfileirarSincronizacaoQuandoOnline(this);
-            if (savedInstanceState == null) {
-                authViewModel.sincronizarFamiliaAtual().observe(this, recurso -> {
-                });
-            }
-        }
-
-        atualizarBannerConectividade(NetworkUtils.temConexaoInternet(this));
 
         binding.barraNavegacaoInferior.setOnItemSelectedListener(item -> {
             int idItem = item.getItemId();
@@ -128,6 +125,7 @@ public class MainContainerActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        verificarConexaoESincronizar();
         try {
             ConnectivityManager gerenciador =
                     (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -135,16 +133,17 @@ public class MainContainerActivity extends AppCompatActivity {
                 callbackRede = new ConnectivityManager.NetworkCallback() {
                     @Override
                     public void onAvailable(@NonNull Network network) {
-                        runOnUiThread(() -> {
-                            atualizarBannerConectividade(true);
-                            WorkScheduler.enfileirarSincronizacaoQuandoOnline(MainContainerActivity.this);
-                        });
+                        runOnUiThread(() -> verificarConexaoESincronizar());
                     }
 
                     @Override
                     public void onLost(@NonNull Network network) {
-                        runOnUiThread(() -> atualizarBannerConectividade(
-                                NetworkUtils.temConexaoInternet(MainContainerActivity.this)));
+                        runOnUiThread(() -> {
+                            if (!NetworkUtils.temConexaoInternet(MainContainerActivity.this)) {
+                                atualizarBannerConectividade(false);
+                                exibirPopupModoOffline();
+                            }
+                        });
                     }
                 };
                 gerenciador.registerDefaultNetworkCallback(callbackRede);
@@ -157,6 +156,9 @@ public class MainContainerActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        if (dialogModoOffline != null && dialogModoOffline.isShowing()) {
+            dialogModoOffline.dismiss();
+        }
         try {
             ConnectivityManager gerenciador =
                     (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -168,12 +170,53 @@ public class MainContainerActivity extends AppCompatActivity {
         callbackRede = null;
     }
 
+    @Override
+    protected void onDestroy() {
+        if (dialogModoOffline != null) {
+            dialogModoOffline.dismiss();
+            dialogModoOffline = null;
+        }
+        super.onDestroy();
+    }
+
     public void navegarParaAba(int menuItemId) {
         binding.barraNavegacaoInferior.setSelectedItemId(menuItemId);
     }
 
     private void atualizarBannerConectividade(boolean online) {
         binding.bannerConectividade.setVisibility(online ? View.GONE : View.VISIBLE);
+    }
+
+    private void verificarConexaoESincronizar() {
+        if (authViewModel == null) {
+            return;
+        }
+        boolean online = NetworkUtils.temConexaoInternet(this);
+        atualizarBannerConectividade(online);
+        if (online) {
+            avisoOfflineExibidoNaSessao = false;
+            if (dialogModoOffline != null && dialogModoOffline.isShowing()) {
+                dialogModoOffline.dismiss();
+            }
+            WorkScheduler.enfileirarSincronizacaoQuandoOnline(this);
+            authViewModel.sincronizarFamiliaAtual().observe(this, recurso -> {
+            });
+        } else if (!avisoOfflineExibidoNaSessao) {
+            avisoOfflineExibidoNaSessao = true;
+            exibirPopupModoOffline();
+        }
+    }
+
+    private void exibirPopupModoOffline() {
+        if (dialogModoOffline != null && dialogModoOffline.isShowing()) {
+            return;
+        }
+        dialogModoOffline = new MaterialAlertDialogBuilder(this)
+                .setTitle("Modo offline ativo")
+                .setMessage(getString(R.string.aviso_modo_offline_banner))
+                .setPositiveButton("Entendi", (dialog, which) -> dialog.dismiss())
+                .create();
+        dialogModoOffline.show();
     }
 
     private void carregarFragmentoPorNome(String nomeClasse, String tituloAba) {

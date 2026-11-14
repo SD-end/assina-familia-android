@@ -26,33 +26,27 @@ import java.util.Map;
 
 public class FirestoreSource {
 
-    // Coleções
     public static final String COLECAO_FAMILIAS = "familias";
     public static final String COLECAO_USUARIOS = "usuarios";
     public static final String COLECAO_CATEGORIAS = "categorias";
     public static final String COLECAO_ASSINATURAS = "assinaturas";
     public static final String COLECAO_COBRANCAS = "cobrancas";
 
-    // Campos compartilhados
     public static final String CAMPO_FAMILIA_ID = "familiaId";
     public static final String CAMPO_FIRESTORE_ID = "firestoreId";
     public static final String CAMPO_NOME = "nome";
 
-    // Família
     public static final String CAMPO_CRIADOR_UID = "criadorUid";
     public static final String CAMPO_ATIVA = "ativa";
     public static final String CAMPO_DATA_CRIACAO = "dataCriacao";
 
-    // Usuário
     public static final String CAMPO_FIRESTORE_UID = "firestoreUid";
     public static final String CAMPO_EMAIL = "email";
     public static final String CAMPO_PERFIL = "perfil";
     public static final String CAMPO_ATIVO = "ativo";
 
-    // Categoria
     public static final String CAMPO_DESCRICAO = "descricao";
 
-    // Assinatura
     public static final String CAMPO_DONO_UID = "donoUid";
     public static final String CAMPO_CATEGORIA_FIRESTORE_ID = "categoriaFirestoreId";
     public static final String CAMPO_NOME_SERVICO = "nomeServico";
@@ -64,7 +58,6 @@ public class FirestoreSource {
     public static final String CAMPO_DATA_PROXIMO_VENCIMENTO = "dataProximoVencimento";
     public static final String CAMPO_STATUS = "status";
 
-    // Cobrança
     public static final String CAMPO_ASSINATURA_FIRESTORE_ID = "assinaturaFirestoreId";
     public static final String CAMPO_DATA_VENCIMENTO = "dataVencimento";
     public static final String CAMPO_VALOR_COBRADO = "valorCobrado";
@@ -251,6 +244,38 @@ public class FirestoreSource {
         }
         return subcolecao(db, familiaId, COLECAO_ASSINATURAS).document(assinatura.getFirestoreId())
                 .set(paraMapaAssinatura(familiaId, assinatura, donoUid, categoriaFirestoreId));
+    }
+
+    @NonNull
+    public Task<Void> excluirAssinatura(@NonNull String familiaId,
+                                        @NonNull String assinaturaFirestoreId,
+                                        boolean isGestor) {
+        FirebaseFirestore db = obterFirestore();
+        if (db == null) {
+            return falhaFirebaseIndisponivel();
+        }
+        if (vazio(assinaturaFirestoreId)) {
+            return falhaSemFirestoreId("Assinatura");
+        }
+        Task<Void> deletarDocumentoAssinatura = subcolecao(db, familiaId, COLECAO_ASSINATURAS)
+                .document(assinaturaFirestoreId)
+                .delete();
+        if (!isGestor) {
+            return deletarDocumentoAssinatura;
+        }
+        return subcolecao(db, familiaId, COLECAO_COBRANCAS)
+                .whereEqualTo(CAMPO_ASSINATURA_FIRESTORE_ID, assinaturaFirestoreId)
+                .get()
+                .continueWithTask(tarefa -> {
+                    List<Task<Void>> delecoes = new ArrayList<>();
+                    if (tarefa.isSuccessful() && tarefa.getResult() != null) {
+                        for (DocumentSnapshot doc : tarefa.getResult().getDocuments()) {
+                            delecoes.add(doc.getReference().delete());
+                        }
+                    }
+                    delecoes.add(deletarDocumentoAssinatura);
+                    return Tasks.whenAll(delecoes);
+                });
     }
 
     @NonNull

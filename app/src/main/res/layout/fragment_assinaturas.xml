@@ -56,6 +56,46 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/cor_texto_primario" />
 
+            <TextView
+                android:id="@+id/txtBadgeNotificacoesAssinaturas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/bg_status_badge"
+                android:backgroundTint="@color/cor_verde_primario"
+                android:gravity="center"
+                android:minWidth="18dp"
+                android:minHeight="18dp"
+                android:paddingHorizontal="5dp"
+                android:paddingVertical="1dp"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="@id/btnNotificacoesAssinaturas"
+                app:layout_constraintTop_toTopOf="@id/btnNotificacoesAssinaturas" />
+
+            <TextView
+                android:id="@+id/txtBadgeAtrasadasAssinaturas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_status_badge"
+                android:backgroundTint="@color/cor_status_atrasado"
+                android:gravity="center"
+                android:minWidth="18dp"
+                android:minHeight="18dp"
+                android:paddingHorizontal="5dp"
+                android:paddingVertical="1dp"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="@id/btnNotificacoesAssinaturas"
+                app:layout_constraintTop_toTopOf="@id/btnNotificacoesAssinaturas" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.textfield.TextInputLayout

@@ -67,49 +67,47 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:tint="@color/cor_texto_primario" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardAlertaInadimplencia"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:visibility="gone"
-                app:cardBackgroundColor="@color/cor_status_atrasado_fundo"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/cor_status_atrasado"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/txtBadgeNotificacoes"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/bg_status_badge"
+                    android:backgroundTint="@color/cor_verde_primario"
+                    android:gravity="center"
+                    android:minWidth="18dp"
+                    android:minHeight="18dp"
+                    android:paddingHorizontal="5dp"
+                    android:paddingVertical="1dp"
+                    android:textColor="@color/white"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="@id/btnNotificacoes"
+                    app:layout_constraintTop_toTopOf="@id/btnNotificacoes" />
 
-                    <ImageView
-                        android:id="@+id/imgIconeAlerta"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:contentDescription="@string/alerta_inadimplencia"
-                        android:src="@android:drawable/ic_dialog_alert"
-                        app:tint="@color/cor_status_atrasado" />
+                <TextView
+                    android:id="@+id/txtBadgeAtrasadas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_status_badge"
+                    android:backgroundTint="@color/cor_status_atrasado"
+                    android:gravity="center"
+                    android:minWidth="18dp"
+                    android:minHeight="18dp"
+                    android:paddingHorizontal="5dp"
+                    android:paddingVertical="1dp"
+                    android:textColor="@color/white"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    app:layout_constraintStart_toStartOf="@id/btnNotificacoes"
+                    app:layout_constraintTop_toTopOf="@id/btnNotificacoes" />
 
-                    <TextView
-                        android:id="@+id/txtAlertaInadimplencia"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:text="@string/alerta_inadimplencia"
-                        android:textColor="@color/cor_status_atrasado"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardResumoPrincipal"

@@ -2,13 +2,16 @@ package com.example.assinafamilia.view.main;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
@@ -20,7 +23,6 @@ import com.example.assinafamilia.model.Usuario;
 import com.example.assinafamilia.util.Resource;
 import com.example.assinafamilia.view.MainActivity;
 import com.example.assinafamilia.viewmodel.FamiliaViewModel;
-import com.example.assinafamilia.worker.WorkScheduler;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -28,6 +30,9 @@ public class PerfilFragment extends Fragment {
 
     private FragmentPerfilBinding binding;
     private FamiliaViewModel familiaViewModel;
+
+    @Nullable
+    private AlertDialog dialogResultadoSincronizacao;
 
     @Nullable
     @Override
@@ -59,8 +64,15 @@ public class PerfilFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && binding != null) {
+            binding.getRoot().setRenderEffect(null);
+        }
+        if (dialogResultadoSincronizacao != null && dialogResultadoSincronizacao.isShowing()) {
+            dialogResultadoSincronizacao.dismiss();
+        }
+        dialogResultadoSincronizacao = null;
         binding = null;
+        super.onDestroyView();
     }
 
     private void atualizarDadosCabecalho() {
@@ -112,12 +124,6 @@ public class PerfilFragment extends Fragment {
     }
 
     private void configurarAcoes() {
-        binding.btnNotificacoesPerfil.setOnClickListener(v -> {
-            WorkScheduler.executarVerificacaoVencimentosImediata(requireContext());
-            Snackbar.make(binding.getRoot(), R.string.aviso_verificacao_vencimentos,
-                    Snackbar.LENGTH_SHORT).show();
-        });
-
         binding.layoutOpcaoEditarDados.setOnClickListener(
                 v -> abrirAtividadePorNome(
                         "com.example.assinafamilia.view.familia.EditarPerfilActivity"));
@@ -163,17 +169,56 @@ public class PerfilFragment extends Fragment {
                 binding.pbCarregandoPerfil.setVisibility(View.GONE);
                 binding.layoutOpcaoSincronizarNuvem.setEnabled(true);
                 atualizarDadosCabecalho();
-                Snackbar.make(binding.getRoot(),
-                        R.string.sucesso_sincronizacao_concluida, Snackbar.LENGTH_LONG).show();
+                String mensagem;
+                if (recurso.isFallbackOffline() && recurso.getMensagem() != null) {
+                    mensagem = recurso.getMensagem();
+                } else {
+                    mensagem = getString(R.string.sucesso_sincronizacao_concluida);
+                }
+                exibirModalResultadoSincronizacao(
+                        getString(R.string.acao_sincronizar_nuvem), mensagem);
             } else {
                 binding.pbCarregandoPerfil.setVisibility(View.GONE);
                 binding.layoutOpcaoSincronizarNuvem.setEnabled(true);
                 String mensagem = recurso.getMensagem() != null
                         ? recurso.getMensagem()
                         : getString(R.string.erro_operacao_categoria);
-                Snackbar.make(binding.getRoot(), mensagem, Snackbar.LENGTH_LONG).show();
+                exibirModalResultadoSincronizacao(
+                        getString(R.string.acao_sincronizar_nuvem), mensagem);
             }
         });
+    }
+
+    private void exibirModalResultadoSincronizacao(@NonNull String titulo,
+                                                   @NonNull String mensagem) {
+        if (binding == null) {
+            return;
+        }
+        if (dialogResultadoSincronizacao != null && dialogResultadoSincronizacao.isShowing()) {
+            dialogResultadoSincronizacao.dismiss();
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            binding.getRoot().setRenderEffect(
+                    android.graphics.RenderEffect.createBlurEffect(
+                            14f, 14f, android.graphics.Shader.TileMode.CLAMP));
+        }
+        dialogResultadoSincronizacao = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(titulo)
+                .setMessage(mensagem)
+                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                .create();
+        dialogResultadoSincronizacao.setOnDismissListener(dialog -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && binding != null) {
+                binding.getRoot().setRenderEffect(null);
+            }
+            dialogResultadoSincronizacao = null;
+        });
+        dialogResultadoSincronizacao.show();
+        if (dialogResultadoSincronizacao.getWindow() != null) {
+            dialogResultadoSincronizacao.getWindow().addFlags(
+                    WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            dialogResultadoSincronizacao.getWindow().setDimAmount(0.6f);
+        }
     }
 
     private void confirmarSaidaConta() {

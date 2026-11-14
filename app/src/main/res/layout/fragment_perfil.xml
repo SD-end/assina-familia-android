@@ -32,15 +32,6 @@
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
-            <ImageButton
-                android:id="@+id/btnNotificacoesPerfil"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/desc_notificacoes"
-                android:src="@android:drawable/ic_popup_reminder"
-                app:tint="@color/cor_texto_primario" />
-
         </LinearLayout>
 
         <ProgressBar
